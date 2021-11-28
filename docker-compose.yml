@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  php-apache:
+    build: .
+    container_name: apps
+    ports:
+      - 80:8000
+    volumes:
+      - ./eshop:/var/www/html
+  database:
+    image: mysql:5.7
+    container_name: db-server
+    restart: always
+    environment:
+      - MYSQL_DATABASE=db
+      - MYSQL_ROOT_PASSWORD=root
+    expose:
+      - '3306'
+    ports: #remove on production
+      - '3306:3306'
+    volumes:
+      - ./db-files:/var/lib/mysql
