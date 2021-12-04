@@ -13,7 +13,7 @@ services:
     container_name: db-server
     restart: always
     environment:
-      - MYSQL_DATABASE=db
+      - MYSQL_DATABASE=eshop_db
       - MYSQL_ROOT_PASSWORD=root
     expose:
       - '3306'
