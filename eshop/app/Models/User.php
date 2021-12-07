@@ -47,11 +47,11 @@ class User extends Authenticatable
     ];
 
     public function address() {
-        return $this->oneToMany($this, Address::class, 'customer_id');
+        return Helper::oneToMany($this, Address::class, 'customer_id');
     }
 
     public function orders() {
-        return $this->hasMany(Order::class, 'customer_id');
+        return Helper::oneToMany($this, Order::class, 'customer_id');
     }
 
     public function cart() {
