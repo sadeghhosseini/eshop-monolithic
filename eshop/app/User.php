@@ -5,6 +5,10 @@ namespace App;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Helpers\RelationshipHelper as Helper;
+use App\Models\Address;
+use App\Models\Order;
+use App\Models\Cart;
 
 class User extends Authenticatable
 {
@@ -36,4 +40,18 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    public function address() {
+        // return $this->hasOne(Address::class, 'customer_id');
+        return $this->oneToMany($this, Address::class, 'customer_id')
+    }
+
+    public function orders() {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
+
+    public function cart() {
+        return Helper::oneToOne($this, Cart::class, 'customer_id');
+    }
 }
