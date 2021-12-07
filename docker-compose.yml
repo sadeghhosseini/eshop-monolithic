@@ -4,6 +4,7 @@ services:
   php-apache:
     build: .
     container_name: apps
+    restart: always
     ports:
       - 80:8000
     volumes:
