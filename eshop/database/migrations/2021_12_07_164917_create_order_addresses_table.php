@@ -14,7 +14,6 @@ class CreateOrderAddressesTable extends Migration
     public function up()
     {
         Schema::create('order_addresses', function (Blueprint $table) {
-            // $table->id();
             $table->unsignedBigInteger('order_id');
             $table->primary('order_id');
             $table->foreign('order_id')->references('id')->on('orders');

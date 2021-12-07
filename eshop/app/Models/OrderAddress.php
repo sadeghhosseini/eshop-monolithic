@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Order;
 use App\Models\Helpers\RelationshipHelper as Helper;
+use App\Models\Order;
 
 class OrderAddress extends Model
 {
+    use HasFactory;
+
     public function order() {
-        // return $this->belongsTo(Order::class, 'address_id');
         return Helper::oneToOneWithFk($this, Order::class, 'order_id');
     }
 }

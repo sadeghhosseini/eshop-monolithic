@@ -22,7 +22,7 @@ class CreateCommentsTable extends Migration
             $table->longText('content');
             $table->timestamps();
         });
-
+        
         //creating a self-referencing column
         Schema::table('comments', function (Blueprint $table) {
             $table->foreign('parent_id')->references('id')->on('comments')
