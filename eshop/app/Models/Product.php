@@ -23,7 +23,7 @@ class Product extends Model
     }
 
     public function orders() {
-        return Helper::manToMany($this, Order::class, 'order_items', 'product_id', 'order_id');
+        return Helper::manyToMany($this, Order::class, 'order_items', 'product_id', 'order_id');
     }
 
     public function images() {
@@ -32,5 +32,9 @@ class Product extends Model
 
     public function carts() {
         return Helper::manyToMany($this, Cart::class, 'cart_items', 'product_id', 'customer_id');
+    }
+
+    public function comments() {
+        return Helper::oneToMany($this, Comment::class, 'product_id');
     }
 }
