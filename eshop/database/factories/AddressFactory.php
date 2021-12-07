@@ -16,10 +16,10 @@ class AddressFactory extends Factory
     {
         return [
             'customer_id' => User::factory(),
-            'province' => $faker->district,
-            'city' => $faker->city,
-            'rest_of_address' => $faker->address,
-            'postal_code' => $faker->postcode,
+            'province' => $this->faker->word(),
+            'city' => $this->faker->city(),
+            'rest_of_address' => $this->faker->address(),
+            'postal_code' => $this->faker->postcode(),
         ];
     }
 }

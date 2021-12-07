@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Order;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OrderAddressFactory extends Factory
@@ -14,7 +15,11 @@ class OrderAddressFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'order_id' => Order::factory(),
+            'province' => $this->faker->word(),
+            'city' => $this->faker->city(),
+            'rest_of_address' => $this->faker->address(),
+            'postal_code' => $this->faker->postcode(),
         ];
     }
 }
