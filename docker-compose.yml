@@ -3,15 +3,15 @@ version: '3'
 services:
   php-apache:
     build: .
-    container_name: apps
+    container_name: apps-mnl
     restart: always
     ports:
-      - 80:8000
+      - 81:8000
     volumes:
       - ./eshop:/var/www/html
   database:
     image: mysql:5.7
-    container_name: db-server
+    container_name: db-server-mnl
     restart: always
     environment:
       - MYSQL_DATABASE=eshop_db
@@ -19,6 +19,6 @@ services:
     expose:
       - '3306'
     ports: #remove on production
-      - '3306:3306'
+      - '3307:3306'
     volumes:
       - ./db-files:/var/lib/mysql
