@@ -11,10 +11,10 @@ class CategoryController extends Controller
 
     public function create(CreateCategoryRequest $request)
     {
-        $newCategory = Category::create([
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-        ]);
+        $newCategory = new Category();
+        $newCategory->title = $request->title;
+        $newCategory->description = $request->description;
+        $newCategory->save();
 
         return response()->json($newCategory);
     }
