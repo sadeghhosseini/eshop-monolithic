@@ -2,8 +2,15 @@
 
 namespace App\Exceptions;
 
+use Exception;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+
 
 class Handler extends ExceptionHandler
 {
@@ -36,6 +43,35 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+            Log::debug(get_class($e));
         });
+
+        /* $this->renderable(function (Exception $e, $request) {
+            echo get_class($e);
+        }); */
+        $this->renderable(function (NotFoundHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Not Found.'
+                ], 404);
+            }
+        });
+        
+        $this->renderable(function (AccessDeniedHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'This Action Is Unauthorized.',
+                ], 403);
+            }
+        });
+    }
+
+
+
+    protected function convertValidationExceptionToResponse(ValidationException $e, $request)
+    {
+        if ($request->is('api/*')) {
+            throw new HttpResponseException(response()->json($e->validator->errors(), 400));
+        }
     }
 }
