@@ -12,7 +12,12 @@ RUN php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
 
 #installs pdo and pdo_mysql drivers for php 
 RUN apt-get update && apt-get upgrade -y
-RUN docker-php-ext-install pdo pdo_mysql
+RUN apt-get update && \
+    apt-get install -y \
+    libzip-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev
+RUN docker-php-ext-install pdo pdo_mysql gd
 
 #runs laravel server
 CMD php /var/www/html/artisan serve --host=0.0.0.0 --port=8000 
