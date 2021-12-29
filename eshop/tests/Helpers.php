@@ -18,6 +18,13 @@ function colorize($items)
     return $result;
 }
 
+/**
+ * 
+ * @property array lastItem
+ * @property object lastModel
+ * @property array(object) models
+ * @property array(array) items
+ */
 class Result
 {
     private array $models = [];
@@ -27,11 +34,11 @@ class Result
     {
         $this->models[] = $model;
     }
-    private function lastModel()
+    function getLastModel()
     {
         return $this->models[count($this->models) - 1];
     }
-    private function lastItem()
+    function getLastItem()
     {
         return $this->items[count($this->items) - 1];
     }
@@ -47,15 +54,23 @@ class Result
     {
         $this->items = $items;
     }
-
+    
     function __get($name)
     {
         if ($name == 'lastModel') {
-            return $this->lastModel();
+            return $this->getLastModel();
         }
 
         if ($name == 'lastItem') {
-            return $this->lastItem();
+            return $this->getLastItem();
+        }
+
+        if ($name == 'models') {
+            return $this->getModels();
+        }
+
+        if ($name == 'items') {
+            return $this->getItems();
         }
     }
 }
@@ -71,7 +86,7 @@ function createRecords($CategoryClass, array $records): Result
     return $result;
 }
 
-function mit($message, $closure, $httpVerb = null, $path = null)
+function mit($message, $closure, $httpVerb = null, $path = null, $with = null)
 {
     $colorizedGroup = colorize([
         [$httpVerb ?? '', '95'],
@@ -79,7 +94,12 @@ function mit($message, $closure, $httpVerb = null, $path = null)
         [$path ?? '', '92'],
         [' ', '39']
     ]);
-    test("${colorizedGroup} - it ${message}", $closure);
+
+    if ($with) {
+        test("${colorizedGroup} - it ${message}", $closure)->with($with);
+    } else {
+        test("${colorizedGroup} - it ${message}", $closure);
+    }
 }
 
 function endpoint(string $endpoint, $callback)
