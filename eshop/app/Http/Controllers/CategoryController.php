@@ -14,6 +14,7 @@ class CategoryController extends Controller
         $newCategory = new Category();
         $newCategory->title = $request->title;
         $newCategory->description = $request->description;
+        $newCategory->parent_id = $request->input('parent_id', null);
         $newCategory->save();
 
         return response()->json($newCategory);
