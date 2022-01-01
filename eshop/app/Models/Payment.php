@@ -12,6 +12,6 @@ class Payment extends Model
     use HasFactory;
 
     public function order() {
-        return Helper::oneToManyWithFk($this, Order::class, 'order_id');
+        return Helper::oneToOneWithFk($this, Order::class, 'order_id');
     }
 }

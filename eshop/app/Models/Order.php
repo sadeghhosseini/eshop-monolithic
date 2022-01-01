@@ -26,6 +26,6 @@ class Order extends Model
     }
 
     public function payment() {
-        return Helper::oneToMany($this, Payment::class, 'order_id');
+        return Helper::oneToOne($this, Payment::class, 'order_id');
     }
 }
