@@ -19,7 +19,7 @@ class CreatePropertiesTable extends Migration
             $table->foreign('category_id')->references('id')->on('categories')
                 ->nullOnDelete();
             $table->string('title');
-            $table->boolean('is_visible');
+            $table->boolean('is_visible')->default(true);
             $table->timestamps();
         });
     }
