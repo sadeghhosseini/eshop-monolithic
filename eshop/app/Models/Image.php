@@ -11,6 +11,9 @@ class Image extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'path',
+    ];
     public function products() {
         return Helper::manyToMany($this, Product::class, 'products_images', 'image_id', 'product_id');
     }

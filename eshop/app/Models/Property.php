@@ -12,6 +12,10 @@ class Property extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'title',
+        'category_id',
+    ];
     public function category() {
         return Helper::oneToManyWithFk($this, Category::class, 'category_id');
     }
