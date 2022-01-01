@@ -16,7 +16,7 @@ class PropertyFactory extends Factory
     {
         return [
             'category_id' => Category::factory(),
-            'title' => $this->faker->title(),
+            'title' => $this->faker->name(),
             'is_visible' => rand(0, 1) == 1,
         ];
     }
