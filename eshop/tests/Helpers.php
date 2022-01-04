@@ -86,6 +86,21 @@ function createRecords($CategoryClass, array $records): Result
     return $result;
 }
 
+function printEndpoint($httpVerb, $path) {
+    $colorizedGroup = colorize([
+        [$httpVerb ?? '', '95'],
+        ' ',
+        [$path ?? '', '92'],
+        [' ', '39']
+    ]);
+    echo $colorizedGroup;
+}
+
+function getUrl($id) {
+    global $url;
+    return buildUrl($url, ['id' => $id]);
+}
+
 function mit($message, $closure, $httpVerb = null, $path = null, $with = null)
 {
     $colorizedGroup = colorize([
