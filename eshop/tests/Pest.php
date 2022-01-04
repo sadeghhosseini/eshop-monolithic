@@ -12,7 +12,7 @@
 */
 
 uses(Tests\TestCase::class)->in('Feature');
-
+uses(Tests\TestCase::class)->in('Integration');
 /*
 |--------------------------------------------------------------------------
 | Expectations
@@ -26,6 +26,82 @@ uses(Tests\TestCase::class)->in('Feature');
 
 expect()->extend('toBeOne', function () {
     return $this->toBe(1);
+});
+
+expect()->extend('toEqualAll', function ($expectedItems, $expectationClosure) {
+    /** @var Model[] $expectedItems */
+    /** @var  TestResponse $response */
+    $response = $this->value;
+    $responseItems = json_decode($response->baseResponse->content());
+    foreach ($expectedItems as $expectedItem) {
+        $respItem = array_filter($responseItems, function ($value) use ($expectedItem) {
+            return $expectedItem->id == $value->id;
+        });
+        if (empty($respItem)) {
+            // expect($expectedItem->id)->toEqual(null);
+            throw new Exception(
+                "response item with id of {$expectedItem->id} does not exist"
+            );
+        }
+        $respItem = array_pop($respItem);
+        if ($expectationClosure) {
+            $expectationClosure($respItem, $expectedItem);
+        }
+    }
+});
+
+/**
+ * @param $comparisonKey is a string that specifies the column or field on which the comparison must get done
+ *  e.g
+ * $a = [0 => ['id' => 1, 'title' => 'one'], 1 => ['id' => 2, 'title' => 'two', 'description' => 'this is nice']]
+ * $b = [0 => ['id' => 2, 'title' => 'two'], 1 => ['id' => 1, 'title' => 'one']]
+ * for the preceding example either of the columns id|title can be passed as $comparisonKey
+ */
+expect()->extend('toEqualArray', function ($expectedItems, $comparisonKey, $expectationClosure) {
+    /** @var Model[] $expectedItems */
+    /** @var  TestResponse $response */
+    $inputItems = $this->value;
+
+    foreach($inputItems as $inpItem) {
+        $foundItems = array_filter($expectedItems, function($expItem) use($inpItem, $comparisonKey) {
+            return ($expItem?->$comparisonKey ?? $expItem[$comparisonKey]) == ($inpItem?->$comparisonKey ?? $inpItem[$comparisonKey]);
+        });
+
+        if (empty($foundItems)) {
+            throw new Exception(
+                "response item with id of {$inpItem->id} does not exist"
+            );
+        }
+
+        $foundItem = array_pop($foundItems);
+        if ($expectationClosure) {
+            $expectationClosure($inpItem, $foundItem);
+        }
+
+    }
+
+    
+});
+expect()->extend('toEqualAll', function ($expectedItems, $expectationClosure) {
+    /** @var Model[] $expectedItems */
+    /** @var  TestResponse $response */
+    $response = $this->value;
+    $responseItems = json_decode($response->baseResponse->content());
+    foreach ($expectedItems as $expectedItem) {
+        $respItem = array_filter($responseItems, function ($value) use ($expectedItem) {
+            return $expectedItem->id == $value->id;
+        });
+        if (empty($respItem)) {
+            // expect($expectedItem->id)->toEqual(null);
+            throw new Exception(
+                "response item with id of {$expectedItem->id} does not exist"
+            );
+        }
+        $respItem = array_pop($respItem);
+        if ($expectationClosure) {
+            $expectationClosure($respItem, $expectedItem);
+        }
+    }
 });
 
 /*
