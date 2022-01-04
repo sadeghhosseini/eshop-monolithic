@@ -6,8 +6,11 @@ use Exception;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
@@ -41,14 +44,17 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        /* $this->reportable(function (Throwable $e) {
+            Log::debug('nice');
             Log::debug(get_class($e));
+        }); */
+
+        $this->renderable(function (Throwable $e) {
+            if (App::environment(['local'])) {
+                Log::debug(get_class($e));//to log all the exception for development
+            }
         });
 
-        /* $this->renderable(function (Exception $e, $request) {
-            echo get_class($e);
-        }); */
         $this->renderable(function (NotFoundHttpException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json([
@@ -62,6 +68,14 @@ class Handler extends ExceptionHandler
                 return response()->json([
                     'message' => 'This Action Is Unauthorized.',
                 ], 403);
+            }
+        });
+
+        $this->renderable(function (MethodNotAllowedHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Method Not Allowed.'
+                ], 405);
             }
         });
     }
