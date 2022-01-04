@@ -31,3 +31,4 @@ Route::patch('/categories/{category}', [CategoryController::class, 'update']);
 Route::get('/products', [ProductController::class, 'getAll']);
 Route::get('/products/{product}', [ProductController::class, 'get']);
 Route::post('/products', [ProductController::class, 'create']);
+Route::patch('/products/{product}', [ProductController::class, 'update']);
