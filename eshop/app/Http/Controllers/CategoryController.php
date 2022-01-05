@@ -5,10 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
+use Spatie\RouteAttributes\Attributes\Delete;
+use Spatie\RouteAttributes\Attributes\Get;
+use Spatie\RouteAttributes\Attributes\Patch;
+use Spatie\RouteAttributes\Attributes\Post;
+use Spatie\RouteAttributes\Attributes\Prefix;
 
+#[Prefix('/api')]
 class CategoryController extends Controller
 {
-
+    #[Post('/categories/')]
     public function create(CreateCategoryRequest $request)
     {
         $newCategory = new Category();
@@ -20,23 +26,27 @@ class CategoryController extends Controller
         return response()->json($newCategory);
     }
 
+    #[Get('/categories/')]
     public function getAll()
     {
         $categories = Category::all();
         return response()->json($categories);
     }
 
+    #[Get('/categories/{category}')]
     public function get(Category $category)
     {
         return response()->json($category);
     }
 
+    #[Delete('/categories/{category}')]
     public function delete(Category $category)
     {
         $category->delete();
         return response()->json([]);
     }
 
+    #[Patch('/categories/{category}')]
     public function update(UpdateCategoryRequest $request, Category $category)
     {
         $category->title = $request->input('title', $category->title);

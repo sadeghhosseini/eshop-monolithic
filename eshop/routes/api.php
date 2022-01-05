@@ -20,15 +20,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/categories', [CategoryController::class, 'create']);
+/* Route::post('/categories', [CategoryController::class, 'create']);
 Route::get('/categories', [CategoryController::class, 'getAll']);
 Route::get('/categories/{category}', [CategoryController::class, 'get']);
 Route::delete('/categories/{category}', [CategoryController::class, 'delete']);
 Route::patch('/categories/{category}', [CategoryController::class, 'update']);
 
+ */
 
-
-Route::get('/products', [ProductController::class, 'getAll']);
+/* Route::get('/products', [ProductController::class, 'getAll']);
 Route::get('/products/{product}', [ProductController::class, 'get']);
 Route::post('/products', [ProductController::class, 'create']);
 Route::patch('/products/{product}', [ProductController::class, 'update']);
+Route::delete('/products/{product}', [ProductController::class, 'delete']); */

@@ -9,20 +9,28 @@ use App\Models\Product;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Spatie\RouteAttributes\Attributes\Delete;
+use Spatie\RouteAttributes\Attributes\Get;
+use Spatie\RouteAttributes\Attributes\Patch;
+use Spatie\RouteAttributes\Attributes\Post;
+use Spatie\RouteAttributes\Attributes\Prefix;
 
+#[Prefix('/api')]
 class ProductController extends Controller
 {
+    #[Get('/products')]
     public function getAll()
     {
         $products = Product::all();
         return response()->json($products);
     }
-
+    #[Get('/products/{product}')]
     public function get(Product $product)
     {
         return response()->json($product);
     }
 
+    #[Post('/products/')]
     public function create(CreateProductRequest $request)
     {
         $product = new Product();
@@ -64,6 +72,7 @@ class ProductController extends Controller
         return response()->json($product->with(['images', 'properties'])->get()->last());
     }
 
+    #[Patch('/products/{product}')]
     public function update(UpdateProductRequest $request, Product $product)
     {
         $product->title = $request->title ?? $product->title;
@@ -110,7 +119,11 @@ class ProductController extends Controller
      *      - remove related comments 
      *      - make product_id in order_items null
      */
+    #[Delete('/products/{product}')]
     public function delete(Product $product) {
-
+        $product->carts()->detach();
+        $product->comments()->delete();
+        $product->delete();
+        return response()->json([]);
     }
 }
