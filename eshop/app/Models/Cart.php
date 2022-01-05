@@ -11,9 +11,9 @@ use App\Models\User;
 class Cart extends Model
 {
     use HasFactory;
-
+    protected $primaryKey = 'customer_id';
     public function items() {
-        return Helper::manyToMany($this, Product::class, 'cart_items', 'customer_id', 'product_id');
+        return Helper::manyToMany($this, Product::class, 'cart_items', 'cart_id', 'product_id');
     }
 
     public function customer() {
