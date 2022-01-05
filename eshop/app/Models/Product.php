@@ -31,7 +31,7 @@ class Product extends Model
     }
 
     public function carts() {
-        return Helper::manyToMany($this, Cart::class, 'cart_items', 'product_id', 'customer_id');
+        return Helper::manyToMany($this, Cart::class, 'cart_items', 'product_id', 'cart_id');
     }
 
     public function comments() {
