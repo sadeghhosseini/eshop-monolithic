@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         $data = [
             $categoriesTable => CategoryTable::populate(),
             $productsTable => ProductTable::populate(),
+            'users' => UserTable::populate(),
         ];
 
         foreach($data as $table => $records) {
@@ -127,3 +128,24 @@ class ProductTable {
     }
 }
 
+
+
+class UserTable {
+    public function __construct(
+        public $id,
+        public $name,
+        public $email,
+        public $password,
+    )
+    {
+        
+    }
+
+    public static function populate() {
+        return [
+            new UserTable(1, 'jack', 'jack@gmail.com', 'password-1'),
+            new UserTable(2, 'john', 'john@gmail.com', 'password-2'),
+            new UserTable(3, 'joe', 'joe@gmail.com', 'password-3'),
+        ];
+    }
+}
