@@ -33,7 +33,7 @@ it("deletes product", function () {
         ->has(Comment::factory()->count(10))
         ->create();
 
-        //create a user
+    //create a user
     //create cart for user
     $user = User::factory()
         ->has(Cart::factory())
@@ -42,24 +42,23 @@ it("deletes product", function () {
 
     //add product to cart of the user
     $user->cart->items()->attach($product->id, ['quantity' => 2]);
-    /*     echo "\nproducts: start\n";
-    print_r($product->carts()->get()->toArray());
-    echo "\nproduct.carts: end\n"; */
     
     //create order record in order_items
     $user->orders->last()->items()->attach(
         $product->id,
         $product->only('title', 'description', 'price', 'quantity')
     );
-    
     //call end point
     $response = delete(getUrl($product->id));
     $response->assertOk(); 
     //removes product from cart
-    expect(DB::table('cart_items')->where('product_id', $product->id)->exists())->toBeFalse();
+    // expect(DB::table('cart_items')->where('product_id', $product->id)->exists())->toBeFalse();
+    expect($product->carts()->exists())->toBeFalse();
     //removes related comments
-    expect(Comment::where('product_id', $product->id)->exists())->toBeFalse();
+    // expect(Comment::where('product_id', $product->id)->exists())->toBeFalse();
+    expect($product->comments()->exists())->toBeFalse();
     //check if product is deleted
     expect(Product::find($product->id))->toBeNull();
     //makes order_items.product_id null
+    expect($product->orders()->exists())->toBeFalse();
 });
