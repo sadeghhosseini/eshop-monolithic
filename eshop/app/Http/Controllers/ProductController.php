@@ -30,7 +30,7 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
-    #[Post('/products/')]
+    #[Post('/products')]
     public function create(CreateProductRequest $request)
     {
         $product = new Product();
@@ -121,7 +121,7 @@ class ProductController extends Controller
      */
     #[Delete('/products/{product}')]
     public function delete(Product $product) {
-        $product->carts()->detach();
+        $product->cartItems()->detach();
         $product->comments()->delete();
         $product->delete();
         return response()->json([]);
