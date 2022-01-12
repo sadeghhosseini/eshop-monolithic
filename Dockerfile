@@ -11,13 +11,25 @@ RUN php -r "if (hash_file('SHA384', '/tmp/composer-setup.php') === '$HASH') { ec
 RUN php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
 
 #installs pdo and pdo_mysql drivers for php 
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get update && \
-    apt-get install -y \
-    libzip-dev \
-    libjpeg62-turbo-dev \
-    libpng-dev
-RUN docker-php-ext-install pdo pdo_mysql gd
+# RUN apt-get update && apt-get upgrade -y
+# RUN apt-get update && \
+#     apt-get install -y \
+#     libzip-dev \
+#     libjpeg62-turbo-dev \
+#     libpng-dev
+# RUN docker-php-ext-install pdo pdo_mysql gd
+
+
+
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions pdo pdo_mysql gd xdebug
+
+
+
+
+
+
 
 #runs laravel server
 CMD php /var/www/html/artisan serve --host=0.0.0.0 --port=8000 
