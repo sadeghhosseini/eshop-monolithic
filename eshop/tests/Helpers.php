@@ -54,7 +54,7 @@ class Result
     {
         $this->items = $items;
     }
-    
+
     function __get($name)
     {
         if ($name == 'lastModel') {
@@ -86,7 +86,8 @@ function createRecords($CategoryClass, array $records): Result
     return $result;
 }
 
-function printEndpoint($httpVerb, $path) {
+function printEndpoint($httpVerb, $path)
+{
     $colorizedGroup = colorize([
         [$httpVerb ?? '', '95'],
         ' ',
@@ -96,9 +97,17 @@ function printEndpoint($httpVerb, $path) {
     echo $colorizedGroup;
 }
 
-function getUrl($id) {
-    global $url;
-    return buildUrl($url, ['id' => $id]);
+function u($url, ...$params)
+{
+    $labelValues = [];
+    if (is_array($params[0])) {
+        $labelValues = $params[0];
+    } else {
+        for ($i = 0; $i < count($params); $i += 2) {
+            $labelValues[$params[$i]] = $params[$i + 1];
+        }
+    }
+    return buildUrl($url, $labelValues);
 }
 
 function mit($message, $closure, $httpVerb = null, $path = null, $with = null)
@@ -139,7 +148,7 @@ function group($verb, $url, $closure)
 function buildUrl($url, $labelValues)
 {
     $keys = array_keys($labelValues);
-    $keys = array_map(function($key) {
+    $keys = array_map(function ($key) {
         return "{{$key}}";
     }, $keys);
     $values = array_values($labelValues);
