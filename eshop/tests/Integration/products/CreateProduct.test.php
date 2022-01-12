@@ -87,7 +87,7 @@ it('creates a product with new properties', function ()  use ($url) {
  */
 it('creates a product with new_images', function ()  use ($url) {
     $category = Category::factory()->create();
-    Storage::fake('images');
+    Storage::fake('local');
     $images = [
         UploadedFile::fake()->image('shite.png'),
         UploadedFile::fake()->image('might.png'),

@@ -3,6 +3,7 @@
 use function Pest\Laravel\delete;
 use function Tests\helpers\getUrl;
 use function Tests\helpers\printEndpoint;
+use function Tests\helpers\u;
 
 use App\Models\Cart;
 use App\Models\Comment;
@@ -26,7 +27,7 @@ beforeAll(function () use ($url) {
  *      - remove related comments 
  *      - make product_id in order_items null
  */
-it("deletes product", function () {
+it("deletes product", function () use ($url){
     //create product
     //add comments to product
     $product = Product::factory()
@@ -49,16 +50,16 @@ it("deletes product", function () {
         $product->only('title', 'description', 'price', 'quantity')
     );
     //call end point
-    $response = delete(getUrl($product->id));
+    $response = delete(u($url, 'id', $product->id));
     $response->assertOk(); 
     //removes product from cart
     // expect(DB::table('cart_items')->where('product_id', $product->id)->exists())->toBeFalse();
-    expect($product->carts()->exists())->toBeFalse();
+    expect($product->cartItems()->exists())->toBeFalse();
     //removes related comments
     // expect(Comment::where('product_id', $product->id)->exists())->toBeFalse();
     expect($product->comments()->exists())->toBeFalse();
     //check if product is deleted
     expect(Product::find($product->id))->toBeNull();
     //makes order_items.product_id null
-    expect($product->orders()->exists())->toBeFalse();
+    expect($product->orderItems()->exists())->toBeFalse();
 });

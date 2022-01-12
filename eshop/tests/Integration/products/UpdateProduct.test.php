@@ -6,8 +6,9 @@ use App\Models\Product;
 use App\Models\Property;
 use function Pest\Laravel\patch;
 use function Tests\helpers\buildUrl;
-use function Tests\helpers\getUrl;
 use function Tests\helpers\printEndpoint;
+use function Tests\helpers\u;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -25,14 +26,13 @@ function decode(TestResponse $response)
     return json_decode($response->baseResponse->content());
 }
 
-function updateIdsByAdding($ModelClass, $columnName, $relationField)
+function updateIdsByAdding($url, $ModelClass, $columnName, $relationField)
 {
     $newIds = $ModelClass::factory()->count(3)->create()->map(fn ($item) => $item->id);
     $product = Product::factory()
         ->has($ModelClass::factory()->count(5))->create();
     $ids = $product->$relationField->map(fn ($item) => $item->id);
-
-    $response = patch(getUrl($product->id), [
+    $response = patch(u($url, 'id', $product->id), [
         $columnName => [...$ids, ...$newIds],
     ]);
     $body = decode($response);
@@ -43,14 +43,14 @@ function updateIdsByAdding($ModelClass, $columnName, $relationField)
     expect($productImageIds)->toMatchArray([...$ids, ...$newIds]);
 }
 
-function updateIdsByAddingAndRemoving($ModelClass, $columnName, $relationField)
+function updateIdsByAddingAndRemoving($url, $ModelClass, $columnName, $relationField)
 {
     $newIds = $ModelClass::factory()->count(3)->create()->map(fn ($item) => $item->id);
     $product = Product::factory()
         ->has($ModelClass::factory()->count(5))->create();
     $itemIds = $product->$relationField->map(fn ($item) => $item->id)->toArray();
     $itemIds = array_slice($itemIds, 0, 3);
-    $response = patch(getUrl($product->id), [
+    $response = patch(u($url, 'id', $product->id), [
         $columnName => [...$itemIds, ...$newIds],
     ]);
     $body = decode($response);
@@ -61,12 +61,12 @@ function updateIdsByAddingAndRemoving($ModelClass, $columnName, $relationField)
     expect($productItemIds)->toMatchArray([...$itemIds, ...$newIds]);
 }
 
-function updateIdsByAddingNonValidForeignKey($ModelClass, $columnName, $relationField)
+function updateIdsByAddingNonValidForeignKey($url, $ModelClass, $columnName, $relationField)
 {
     $product = Product::factory()
         ->has($ModelClass::factory()->count(5))->create();
     $itemIds = $product->$relationField->map(fn ($item) => $item->id);
-    $response = patch(getUrl($product->id), [
+    $response = patch(u($url, 'id', $product->id), [
         $columnName => [...$itemIds, 55],
     ]);
     $response->assertStatus(400);
@@ -74,7 +74,7 @@ function updateIdsByAddingNonValidForeignKey($ModelClass, $columnName, $relation
     expect(decode($response)->$columnName[0])->toContain('55');
 }
 
-function updateWithNewImages($existingImageIds = [])
+function updateWithNewImages($url, $existingImageIds = [])
 {
     $category = Category::factory()->create();
     $productToBeUpdated = Product::factory()->create();
@@ -92,7 +92,7 @@ function updateWithNewImages($existingImageIds = [])
         $data['image_ids'] = $existingImageIds;
     }
     $product = Product::factory($data)->make();
-    $response = patch(getUrl($productToBeUpdated->id), $product->toArray());
+    $response = patch(u($url, 'id', $productToBeUpdated->id), $product->toArray());
     $response->assertOk();
 
     $productId = json_decode($response->baseResponse->content())->id;
@@ -106,7 +106,7 @@ function updateWithNewImages($existingImageIds = [])
     }
 }
 
-function updateWithNewProperties($existingPropertyIds = [])
+function updateWithNewProperties($url, $existingPropertyIds = [])
 {
     $category = Category::factory()->create();
     $product = Product::factory()->create();
@@ -114,7 +114,7 @@ function updateWithNewProperties($existingPropertyIds = [])
         'category_id' => $category->id,
     ])->count(3)
         ->make();
-    $response = patch(getUrl($product->id), Product::factory([
+    $response = patch(u($url, 'id', $product->id), Product::factory([
         'category_id' => $category->id,
         'new_properties' => $properties
             ->map(fn ($item) => collect($item)->only('title')['title'])
@@ -143,10 +143,10 @@ function updateWithNewProperties($existingPropertyIds = [])
     });
 }
 
-it('updates simple product fields', function ($key) {
+it('updates simple product fields', function ($key) use($url){
     $product = Product::factory()->create();
     $value = Product::factory()->make()->$key;
-    $response = patch(getUrl($product->id), [$key => $value]);
+    $response = patch(u($url, 'id', $product->id), [$key => $value]);
     $body = json_decode($response->baseResponse->content());
     expect($body->$key)->toEqual($value);
 })->with([
@@ -156,52 +156,52 @@ it('updates simple product fields', function ($key) {
     ['price'],
 ]);
 
-it('updates category_id', function () {
+it('updates category_id', function () use ($url){
     $category = Category::factory()->create();
     $product = Product::factory()->create();
-    $response = patch(getUrl($product->id), [
+    $response = patch(u($url, 'id', $product->id), [
         'category_id' => $category->id,
     ]);
     $body = json_decode($response->baseResponse->content());
     expect($body->category_id)->toEqual($category->id);
 });
 
-it('updates image_ids by adding new image_ids', function () {
-    updateIdsByAdding(Image::class, 'image_ids', 'images');
+it('updates image_ids by adding new image_ids', function () use ($url){
+    updateIdsByAdding($url, Image::class, 'image_ids', 'images');
 });
 
-it('updates image_ids by adding new image_ids and removing some old image_ids', function () {
-    updateIdsByAddingAndRemoving(Image::class, 'image_ids', 'images');
+it('updates image_ids by adding new image_ids and removing some old image_ids', function () use ($url) {
+    updateIdsByAddingAndRemoving($url, Image::class, 'image_ids', 'images');
 });
 
-it('updates property_ids by adding new propertyIds', function () {
-    updateIdsByAdding(Property::class, 'property_ids', 'properties');
+it('updates property_ids by adding new propertyIds', function () use ($url) {
+    updateIdsByAdding($url, Property::class, 'property_ids', 'properties');
 });
 
-it('updates property_ids by adding new property_ids and removing some old property_ids', function () {
-    updateIdsByAddingAndRemoving(Property::class, 'property_ids', 'properties');
+it('updates property_ids by adding new property_ids and removing some old property_ids', function () use ($url) {
+    updateIdsByAddingAndRemoving($url, Property::class, 'property_ids', 'properties');
 });
 
 it('updates a product with new_images', function ()  use ($url) {
-    updateWithNewImages();
+    updateWithNewImages($url);
 });
 
 it('updates a product with new_images and existing image_ids', function ()  use ($url) {
-    updateWithNewImages(Image::factory()->count(10)->create()->map(fn ($image) => $image->id)->toArray());
+    updateWithNewImages($url, Image::factory()->count(10)->create()->map(fn ($image) => $image->id)->toArray());
 });
 
 it('updates a product with new properties', function ()  use ($url) {
-    updateWithNewProperties();
+    updateWithNewProperties($url);
 });
 
 it('updates a product with new properties and existing property_ids', function ()  use ($url) {
-    updateWithNewProperties(Property::factory()->count(5)->create()->map(fn ($property) => $property->id)->toArray());
+    updateWithNewProperties($url, Property::factory()->count(5)->create()->map(fn ($property) => $property->id)->toArray());
 });
 
-it('returns 400 if new image_ids are not valid foreign keys', function () {
-    updateIdsByAddingNonValidForeignKey(Image::class, 'image_ids', 'images');
+it('returns 400 if new image_ids are not valid foreign keys', function () use ($url) {
+    updateIdsByAddingNonValidForeignKey($url, Image::class, 'image_ids', 'images');
 });
 
-it('returns 400 if new property_ids are not valid foreign keys', function () {
-    updateIdsByAddingNonValidForeignKey(Image::class, 'property_ids', 'properties');
+it('returns 400 if new property_ids are not valid foreign keys', function () use ($url) {
+    updateIdsByAddingNonValidForeignKey($url, Image::class, 'property_ids', 'properties');
 });
