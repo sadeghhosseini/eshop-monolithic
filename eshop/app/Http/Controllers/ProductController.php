@@ -126,4 +126,19 @@ class ProductController extends Controller
         $product->delete();
         return response()->json([]);
     }
+
+    #[Get('/products/{product}/images')]
+    public function getImages(Product $product) {
+        return response()->json($product->images);
+    }
+
+    #[Get('/products/{product}/category')]
+    public function getCategories(Product $product) {
+        return response()->json($product->category);
+    }
+    
+    #[Get('/products/{product}/properties')]
+    public function getProperties(Product $product) {
+        return response()->json($product->properties);
+    }
 }
