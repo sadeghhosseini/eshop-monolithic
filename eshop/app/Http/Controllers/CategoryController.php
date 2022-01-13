@@ -14,7 +14,7 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Prefix('/api')]
 class CategoryController extends Controller
 {
-    #[Post('/categories/')]
+    #[Post('/categories')]
     public function create(CreateCategoryRequest $request)
     {
         $newCategory = new Category();
@@ -26,7 +26,7 @@ class CategoryController extends Controller
         return response()->json($newCategory);
     }
 
-    #[Get('/categories/')]
+    #[Get('/categories')]
     public function getAll()
     {
         $categories = Category::all();
