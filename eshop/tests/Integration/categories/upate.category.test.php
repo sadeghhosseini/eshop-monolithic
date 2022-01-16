@@ -13,8 +13,13 @@ beforeAll(function() use ($url) {
     printEndpoint('PATCH', $url);
 });
 
+beforeEach(function() {
+    $this->seed(\Database\Seeders\PermissionSeeder::class);
+    $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->registerPermissions();
+});
 
 it('returns 400 if input is not valid', function () use ($url) {
+    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('edit-any-categories'));
     $category = Category::factory()->create();
     $response = patch(
         buildUrl($url, ['id' => $category->id]),
@@ -24,17 +29,19 @@ it('returns 400 if input is not valid', function () use ($url) {
 });
 
 it('returns 404 if no category with id={id} exists', function () use ($url) {
+    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('edit-any-categories'));
     $response = patch(buildUrl($url, ['id' => 32]));
     $response->assertStatus(404);
 });
 
 it('returns updated category record', function () use ($url) {
+    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('edit-any-categories'));
     $category = Category::factory()->create();
-
+    
     $newTitle = 'updated-title';
     $response = patch(buildUrl($url, ['id' => $category->id]), ['title' => $newTitle]);
     $category->title = $newTitle;
     $response->assertOk();
     expect($response->json())
-        ->toMatchArray($category->toArray());
+    ->toMatchArray($category->toArray());
 });
