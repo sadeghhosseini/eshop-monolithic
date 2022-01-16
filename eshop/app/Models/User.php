@@ -11,10 +11,12 @@ use App\Models\Helpers\RelationshipHelper as Helper;
 use App\Models\Address;
 use App\Models\Order;
 use App\Models\Cart;
+use Illuminate\Contracts\Auth\Access\Authorizable;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Authorizable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
