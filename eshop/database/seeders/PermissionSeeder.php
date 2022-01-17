@@ -39,6 +39,8 @@ class PermissionSeeder extends Seeder
             'add-properties',
             'edit-any-properties',
             'delete-any-properties',
+
+            
             //users
             'view-any-users',
 

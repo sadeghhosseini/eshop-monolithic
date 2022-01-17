@@ -1,8 +1,10 @@
 <?php
 
 use function Pest\Laravel\delete;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\getUrl;
 use function Tests\helpers\printEndpoint;
+use function Tests\helpers\setupAuthorization;
 use function Tests\helpers\u;
 
 use App\Models\Cart;
@@ -20,7 +22,7 @@ $url = '/api/products/{id}';
 beforeAll(function () use ($url) {
     printEndpoint('DELETE', $url);
 });
-
+setupAuthorization(fn($closure) => beforeEach($closure));
 /**
  * operations in respect to relatins:
  *      - remove from carts 
@@ -28,6 +30,7 @@ beforeAll(function () use ($url) {
  *      - make product_id in order_items null
  */
 it("deletes product", function () use ($url){
+    actAsUserWithPermission('delete-any-products');
     //create product
     //add comments to product
     $product = Product::factory()

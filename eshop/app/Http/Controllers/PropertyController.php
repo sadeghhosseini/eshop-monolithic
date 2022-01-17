@@ -26,7 +26,7 @@ class PropertyController extends Controller
         return response()->json($properties);
     }
     
-    #[Post('/properties')]
+    #[Post('/properties', middleware: ['auth:sanctum', 'permission:add-properties'])]
     public function create(CreatePropertyRequest $request) {
         $property = new Property();
         $property->title = $request->title;
@@ -36,7 +36,7 @@ class PropertyController extends Controller
         return response()->json($property);
     }
     
-    #[Patch('/properties/{property}')]
+    #[Patch('/properties/{property}', middleware: ['auth:sanctum', 'permission:edit-any-properties'])]
     public function update(UpdatePropertyRequest $request, Property $property) {
         $property->title = $request->title ?? $property->title;
         $property->is_visible = $request->is_visible ?? $property->is_visible;
@@ -44,7 +44,7 @@ class PropertyController extends Controller
         return response()->json($property);
     }
     
-    #[Delete('/properties/{property}')]
+    #[Delete('/properties/{property}', middleware: ['auth:sanctum', 'permission:delete-any-properties'])]
     public function delete(Property $property) {
         $property->delete();
         return response()->json($property);

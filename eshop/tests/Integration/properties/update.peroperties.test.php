@@ -1,7 +1,9 @@
 <?php
 
 use function Pest\Laravel\patch;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
+use function Tests\helpers\setupAuthorization;
 use function Tests\helpers\u;
 
 use App\Models\Product;
@@ -14,8 +16,10 @@ beforeAll(function () use ($url) {
     printEndpoint('PATCH', $url);
 });
 
+setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('updates a property', function ($key, $value) use ($url) {
+    actAsUserWithPermission('edit-any-properties');
     $property = Property::factory()->create();
     $response = patch(u($url, 'id', $property->id), [
         $key => $value,
@@ -29,6 +33,7 @@ it('updates a property', function ($key, $value) use ($url) {
 ]);
 
 it('checks validation rules', function ($key, $value) use ($url) {
+    actAsUserWithPermission('edit-any-properties');
     $property = Property::factory()->create();
     $response = patch(u($url, 'id', $property->id), [
         $key => $value,

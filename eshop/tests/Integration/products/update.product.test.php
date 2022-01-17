@@ -5,8 +5,10 @@ use App\Models\Image;
 use App\Models\Product;
 use App\Models\Property;
 use function Pest\Laravel\patch;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\buildUrl;
 use function Tests\helpers\printEndpoint;
+use function Tests\helpers\setupAuthorization;
 use function Tests\helpers\u;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,6 +23,7 @@ beforeAll(function () use ($url) {
     printEndpoint('PATCH', $url);
 });
 
+setupAuthorization(fn($closure) => beforeEach($closure));
 function decode(TestResponse $response)
 {
     return json_decode($response->baseResponse->content());
@@ -144,6 +147,7 @@ function updateWithNewProperties($url, $existingPropertyIds = [])
 }
 
 it('updates simple product fields', function ($key) use($url){
+    actAsUserWithPermission('edit-any-products');
     $product = Product::factory()->create();
     $value = Product::factory()->make()->$key;
     $response = patch(u($url, 'id', $product->id), [$key => $value]);
@@ -157,6 +161,7 @@ it('updates simple product fields', function ($key) use($url){
 ]);
 
 it('updates category_id', function () use ($url){
+    actAsUserWithPermission('edit-any-products');
     $category = Category::factory()->create();
     $product = Product::factory()->create();
     $response = patch(u($url, 'id', $product->id), [
@@ -167,41 +172,51 @@ it('updates category_id', function () use ($url){
 });
 
 it('updates image_ids by adding new image_ids', function () use ($url){
+    actAsUserWithPermission('edit-any-products');
     updateIdsByAdding($url, Image::class, 'image_ids', 'images');
 });
 
 it('updates image_ids by adding new image_ids and removing some old image_ids', function () use ($url) {
+    actAsUserWithPermission('edit-any-products');
     updateIdsByAddingAndRemoving($url, Image::class, 'image_ids', 'images');
 });
 
 it('updates property_ids by adding new propertyIds', function () use ($url) {
+    actAsUserWithPermission('edit-any-products');
     updateIdsByAdding($url, Property::class, 'property_ids', 'properties');
 });
 
 it('updates property_ids by adding new property_ids and removing some old property_ids', function () use ($url) {
+    actAsUserWithPermission('edit-any-products');
     updateIdsByAddingAndRemoving($url, Property::class, 'property_ids', 'properties');
 });
 
 it('updates a product with new_images', function ()  use ($url) {
+    actAsUserWithPermission('edit-any-products');
     updateWithNewImages($url);
 });
 
 it('updates a product with new_images and existing image_ids', function ()  use ($url) {
+    actAsUserWithPermission('edit-any-products');
     updateWithNewImages($url, Image::factory()->count(10)->create()->map(fn ($image) => $image->id)->toArray());
 });
 
 it('updates a product with new properties', function ()  use ($url) {
+    actAsUserWithPermission('edit-any-products');
     updateWithNewProperties($url);
 });
 
 it('updates a product with new properties and existing property_ids', function ()  use ($url) {
+    actAsUserWithPermission('edit-any-products');
     updateWithNewProperties($url, Property::factory()->count(5)->create()->map(fn ($property) => $property->id)->toArray());
 });
 
 it('returns 400 if new image_ids are not valid foreign keys', function () use ($url) {
+    actAsUserWithPermission('edit-any-products');
     updateIdsByAddingNonValidForeignKey($url, Image::class, 'image_ids', 'images');
 });
 
 it('returns 400 if new property_ids are not valid foreign keys', function () use ($url) {
+    actAsUserWithPermission('edit-any-products');
     updateIdsByAddingNonValidForeignKey($url, Image::class, 'property_ids', 'properties');
 });
