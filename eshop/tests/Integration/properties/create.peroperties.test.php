@@ -1,7 +1,9 @@
 <?php
 
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
+use function Tests\helpers\setupAuthorization;
 
 use App\Models\Property;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,8 +14,10 @@ beforeAll(function () use ($url) {
     printEndpoint('POST', $url);
 });
 
+setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('creates a property', function () use ($url) {
+    actAsUserWithPermission('add-properties');
     $property = Property::factory(['is_visible' => true])->make();
     $response = post($url, $property->toArray());
     $response->assertOk();
@@ -27,6 +31,7 @@ it('creates a property', function () use ($url) {
 });
 
 it('checks validation rules', function ($key, $value) use ($url) {
+    actAsUserWithPermission('add-properties');
     $property = Property::factory([
         $key => $value,
     ])->make();

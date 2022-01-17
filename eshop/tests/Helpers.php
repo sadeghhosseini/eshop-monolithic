@@ -18,6 +18,26 @@ function colorize($items)
     return $result;
 }
 
+function actAsUserWithPermission($permission) {
+    \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create()->givePermissionTo($permission));
+}
+
+/**
+ * @param $closure fn($closure) => beforeEach($closure)
+ */
+function setupAuthorization($closure)
+{
+    /* $filename = Backtrace::file();
+    return new BeforeEachCall(TestSuite::getInstance(), $filename, function() {
+        $this->seed(\Database\Seeders\PermissionSeeder::class);
+        $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->registerPermissions();
+    }); */
+    $closure(function() {
+        $this->seed(\Database\Seeders\PermissionSeeder::class);
+        $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->registerPermissions();
+    });
+}
+
 /**
  * 
  * @property array lastItem
