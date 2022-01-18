@@ -19,7 +19,7 @@ function colorize($items)
 }
 
 function actAsUserWithPermission($permission) {
-    \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create()->givePermissionTo($permission));
+    return \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create()->givePermissionTo($permission));
 }
 
 /**

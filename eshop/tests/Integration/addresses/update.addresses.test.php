@@ -4,6 +4,7 @@ use App\Models\Address;
 use App\Models\User;
 
 use function Pest\Laravel\patch;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\u;
 
@@ -15,8 +16,11 @@ beforeAll(function () use ($url) {
     printEndpoint('PATCH', $url);
 });
 
+Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
+
 it('updates address', function ($key) use ($url) {
-    $address = Address::factory()->create();
+    $user = actAsUserWithPermission('edit-own-addresses');
+    $address = Address::factory(['customer_id' => $user->id])->create();
     $response = patch(u($url, 'id', $address->id), [
         ...$address->makeHidden($key)->toArray(),
         $key => Address::factory()->make()->$key,
@@ -38,7 +42,8 @@ it('updates address', function ($key) use ($url) {
 ]);
 
 it('returns 400 if inputs are invalid', function ($key, $value) use ($url) {
-    $address = Address::factory()->create();
+    $user = actAsUserWithPermission('edit-own-addresses');
+    $address = Address::factory(['customer_id' => $user->id])->create();
     $response = patch(u($url, 'id', $address->id), [
         ...$address->toArray(),
         $key => $value,

@@ -30,7 +30,6 @@ class CreateAddressRequest extends FormRequest
             'city' => 'required|string|min:2|max:100',
             'rest_of_address' => 'required|string|min:5|max:200',
             'postal_code' => 'required|min:5|max:100',
-            'customer_id' => ['required', new ForeignKeyExists(User::class)]
         ];
     }
 }

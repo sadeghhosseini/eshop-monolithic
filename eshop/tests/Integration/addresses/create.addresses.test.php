@@ -4,6 +4,7 @@ use App\Models\Address;
 use App\Models\User;
 
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,11 +15,13 @@ beforeAll(function () use ($url) {
     printEndpoint('POST', $url);
 });
 
+Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
+
 it('creates address', function () use ($url) {
-    $address = Address::factory()->make()->toArray();
+    actAsUserWithPermission('add-own-addresses');
+    $address = Address::factory()->make()->makeHidden('customer_id')->toArray();
     $response = post($url, $address);
     $response->assertOk();
-
     expect(
         Address::find($response->json()['id'])->toArray()
     )->toMatchArray(
@@ -27,9 +30,10 @@ it('creates address', function () use ($url) {
 });
 
 it('returns 400 if inputs are invalid', function ($key, $value) use ($url) {
+    actAsUserWithPermission('add-own-addresses');
     $address = Address::factory([
         $key => $value,
-    ])->make()->toArray();
+    ])->make()->makeHidden('customer_id')->toArray();
     $response = post($url, $address);
     $response->assertStatus(400);
 })->with([
@@ -37,5 +41,11 @@ it('returns 400 if inputs are invalid', function ($key, $value) use ($url) {
     ['city', ''],//city => required
     ['rest_of_address', ''],//rest_of_address => required
     ['postal_code', ''],//postal_code => required
-    ['customer_id', 22],//customer_id => ForeignKeyExists
 ]);
+
+it('returns 401 if not logged in', function() use ($url) {
+    $address = Address::factory()->make()->makeHidden('customer_id');
+    $response = post($url, $address->toArray());
+    $response->assertStatus(401);
+
+});
