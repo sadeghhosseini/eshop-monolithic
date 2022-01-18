@@ -27,7 +27,7 @@ class ImageController extends Controller
         return response()->json($image);
     }
 
-    #[Post('/images')]
+    #[Post('/images', middleware: ['auth:sanctum', 'permission:add-images'])]
     public function create(CreateImageRequest $request) {
         $images = $request->images;
         $paths = [];
@@ -60,7 +60,7 @@ class ImageController extends Controller
         $image->save();
     } */
 
-    #[Delete('/images/{image}')]
+    #[Delete('/images/{image}', middleware: ['auth:sanctum', 'permission:delete-any-images'])]
     public function delete(Image $image) {
         $image->delete();
         Storage::delete($image->path);

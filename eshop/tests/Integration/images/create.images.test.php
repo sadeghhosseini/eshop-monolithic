@@ -1,12 +1,14 @@
 <?php
 
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 
 use App\Models\Image;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Test;
 
 uses(RefreshDatabase::class);
 $url = '/api/images';
@@ -14,8 +16,10 @@ beforeAll(function () use ($url) {
     printEndpoint('POST', $url);
 });
 
+Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('uploads images and saves images path in db', function () use ($url) {
+    actAsUserWithPermission('add-images');
     Storage::fake('local');
 
     $data = [
@@ -57,6 +61,7 @@ it('uploads images and saves images path in db', function () use ($url) {
 });
 
 it('returns 400 if images size is more than the valid image size', function () use ($url) {
+    actAsUserWithPermission('add-images');
     Storage::fake('local');
     $response = post($url, [
         'images' => [
@@ -70,6 +75,7 @@ it('returns 400 if images size is more than the valid image size', function () u
 });
 
 it('returns 400 if uploaded file is anything other than jpg|png', function () use ($url) {
+    actAsUserWithPermission('add-images');
     Storage::fake('local');
     $response = post($url, [
         'images' => [
