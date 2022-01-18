@@ -14,7 +14,7 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Prefix('/api')]
 class CategoryController extends Controller
 {
-    #[Post('/categories', middleware: ['auth:sanctum', 'can:add-categories'])]
+    #[Post('/categories', middleware: ['auth:sanctum', 'can:add-category'])]
     public function create(CreateCategoryRequest $request)
     {
         $newCategory = new Category();
@@ -39,14 +39,14 @@ class CategoryController extends Controller
         return response()->json($category);
     }
 
-    #[Delete('/categories/{category}', middleware: ['auth:sanctum', 'can:delete-any-categories'])]
+    #[Delete('/categories/{category}', middleware: ['auth:sanctum', 'can:delete-category-any'])]
     public function delete(Category $category)
     {
         $category->delete();
         return response()->json([]);
     }
 
-    #[Patch('/categories/{category}', middleware: ['auth:sanctum', 'can:edit-any-categories'])]
+    #[Patch('/categories/{category}', middleware: ['auth:sanctum', 'can:edit-category-any'])]
     public function update(UpdateCategoryRequest $request, Category $category)
     {
         $category->title = $request->input('title', $category->title);

@@ -19,7 +19,7 @@ beforeAll(function () use ($url) {
 setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('updates a property', function ($key, $value) use ($url) {
-    actAsUserWithPermission('edit-any-properties');
+    actAsUserWithPermission('edit-property-any');
     $property = Property::factory()->create();
     $response = patch(u($url, 'id', $property->id), [
         $key => $value,
@@ -33,7 +33,7 @@ it('updates a property', function ($key, $value) use ($url) {
 ]);
 
 it('checks validation rules', function ($key, $value) use ($url) {
-    actAsUserWithPermission('edit-any-properties');
+    actAsUserWithPermission('edit-property-any');
     $property = Property::factory()->create();
     $response = patch(u($url, 'id', $property->id), [
         $key => $value,

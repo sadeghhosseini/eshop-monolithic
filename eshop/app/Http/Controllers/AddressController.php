@@ -21,7 +21,7 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 class AddressController extends Controller
 {
     
-    #[Post('/addresses', middleware:['permission:add-own-addresses'])]
+    #[Post('/addresses', middleware:['permission:add-address-own'])]
     public function create(CreateAddressRequest $request) {
         $address = new Address();
         $address->city = $request->city;
@@ -37,13 +37,13 @@ class AddressController extends Controller
      * TODO for a customer returns all his/her address
      * for admin returns all customers' address 
      */
-    #[Get('/addresses', middleware: ['permission:view-own-addresses|view-any-addresses'])]
+    #[Get('/addresses', middleware: ['permission:view-address-own|view-any-addresses'])]
     public function getAll(Request $request) {
         if ($request->user()->hasPermissionTo('view-any-addresses')) {
             return response()->json(User::all());
         }
         
-        if ($request->user()->hasPermissionTo('view-own-addresses')) {
+        if ($request->user()->hasPermissionTo('view-address-own')) {
             return response()->json(User::find(Auth::id()));
         }
 
@@ -54,7 +54,7 @@ class AddressController extends Controller
         return response()->json($address);
     }
 
-    #[Patch('/addresses/{address}', middleware: ['permission:edit-own-addresses'])]
+    #[Patch('/addresses/{address}', middleware: ['permission:edit-address-own'])]
     public function update(UpdateAddressRequest $request, Address $address) {
         if ($address->customer->id !== $request->user()->id) {
             throw new AuthorizationException();
@@ -68,7 +68,7 @@ class AddressController extends Controller
         return response()->json();
     }
 
-    #[Delete('/addresses/{address}', middleware: ['permission:delete-own-addresses'])]
+    #[Delete('/addresses/{address}', middleware: ['permission:delete-address-own'])]
     public function delete(Address $address) {
         if ($address->customer->id !== Auth::id()) {
             throw new AuthorizationException();

@@ -25,7 +25,7 @@ setupAuthorization(fn($closure) => beforeEach($closure));
  * check if image is deleted both from filesystem and db
  */
 it('deletes image from db and filesystem', function () use ($url) {
-    actAsUserWithPermission('delete-any-images');
+    actAsUserWithPermission('delete-image-any');
     Storage::fake('local');
     $imageFile = UploadedFile::fake('local')->create('img.png');
     $uploadedImagePath = Storage::putFile('images/', $imageFile);
@@ -42,7 +42,7 @@ it('deletes image from db and filesystem', function () use ($url) {
  * check if image is deleted from products_images record
  */
 it('image deletion cascades to products_images records', function () use ($url) {
-    actAsUserWithPermission('delete-any-images');
+    actAsUserWithPermission('delete-image-any');
     $product = Product::factory()
         ->has(Image::factory())
         ->create();

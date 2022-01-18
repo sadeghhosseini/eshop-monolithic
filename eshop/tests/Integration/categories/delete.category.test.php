@@ -20,7 +20,7 @@ it('delete - returns 404 if no category with id={id} exists', function () use ($
     Laravel\Sanctum\Sanctum::actingAs(
         App\Models\User::factory()
             ->create()
-            ->givePermissionTo('delete-any-categories')
+            ->givePermissionTo('delete-category-any')
     );
     $response = delete(buildUrl($url, ['id' => 300]));
     $response->assertStatus(404);
@@ -30,7 +30,7 @@ it('delete - returns 200 if category is deleted successfully', function () use (
     Laravel\Sanctum\Sanctum::actingAs(
         App\Models\User::factory()
             ->create()
-            ->givePermissionTo('delete-any-categories')
+            ->givePermissionTo('delete-category-any')
     );
     $category = Category::factory()->create();
     $response = delete(buildUrl($url, ['id' => $category->id]));

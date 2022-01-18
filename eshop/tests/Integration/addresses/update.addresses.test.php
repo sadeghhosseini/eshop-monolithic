@@ -19,7 +19,7 @@ beforeAll(function () use ($url) {
 Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('updates address', function ($key) use ($url) {
-    $user = actAsUserWithPermission('edit-own-addresses');
+    $user = actAsUserWithPermission('edit-address-own');
     $address = Address::factory(['customer_id' => $user->id])->create();
     $response = patch(u($url, 'id', $address->id), [
         ...$address->makeHidden($key)->toArray(),
@@ -42,7 +42,7 @@ it('updates address', function ($key) use ($url) {
 ]);
 
 it('returns 400 if inputs are invalid', function ($key, $value) use ($url) {
-    $user = actAsUserWithPermission('edit-own-addresses');
+    $user = actAsUserWithPermission('edit-address-own');
     $address = Address::factory(['customer_id' => $user->id])->create();
     $response = patch(u($url, 'id', $address->id), [
         ...$address->toArray(),

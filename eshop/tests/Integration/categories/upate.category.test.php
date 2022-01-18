@@ -19,7 +19,7 @@ beforeEach(function() {
 });
 
 it('returns 400 if input is not valid', function () use ($url) {
-    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('edit-any-categories'));
+    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('edit-category-any'));
     $category = Category::factory()->create();
     $response = patch(
         buildUrl($url, ['id' => $category->id]),
@@ -29,13 +29,13 @@ it('returns 400 if input is not valid', function () use ($url) {
 });
 
 it('returns 404 if no category with id={id} exists', function () use ($url) {
-    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('edit-any-categories'));
+    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('edit-category-any'));
     $response = patch(buildUrl($url, ['id' => 32]));
     $response->assertStatus(404);
 });
 
 it('returns updated category record', function () use ($url) {
-    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('edit-any-categories'));
+    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('edit-category-any'));
     $category = Category::factory()->create();
     
     $newTitle = 'updated-title';

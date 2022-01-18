@@ -19,14 +19,14 @@ beforeAll(function () use ($url) {
 setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('deletes a property', function () use ($url) {
-    actAsUserWithPermission('delete-any-properties');
+    actAsUserWithPermission('delete-property-any');
     $property = Property::factory()->create();
     $response = delete(u($url, 'id', $property->id));
     $response->assertOk();
     expect(Property::where('id', $property->id)->exists())->toBeFalse();
 });
 it('deletes related product_properties records', function () use ($url) {
-    actAsUserWithPermission('delete-any-properties');
+    actAsUserWithPermission('delete-property-any');
     $property = Property::factory()->create();
     $products = Product::factory()->count(3)
         ->has(Property::factory()->count(3))

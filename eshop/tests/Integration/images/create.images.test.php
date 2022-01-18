@@ -19,7 +19,7 @@ beforeAll(function () use ($url) {
 Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('uploads images and saves images path in db', function () use ($url) {
-    actAsUserWithPermission('add-images');
+    actAsUserWithPermission('add-image');
     Storage::fake('local');
 
     $data = [
@@ -61,7 +61,7 @@ it('uploads images and saves images path in db', function () use ($url) {
 });
 
 it('returns 400 if images size is more than the valid image size', function () use ($url) {
-    actAsUserWithPermission('add-images');
+    actAsUserWithPermission('add-image');
     Storage::fake('local');
     $response = post($url, [
         'images' => [
@@ -75,7 +75,7 @@ it('returns 400 if images size is more than the valid image size', function () u
 });
 
 it('returns 400 if uploaded file is anything other than jpg|png', function () use ($url) {
-    actAsUserWithPermission('add-images');
+    actAsUserWithPermission('add-image');
     Storage::fake('local');
     $response = post($url, [
         'images' => [

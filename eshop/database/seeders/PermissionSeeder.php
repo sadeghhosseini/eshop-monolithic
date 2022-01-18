@@ -26,59 +26,63 @@ class PermissionSeeder extends Seeder
         //create permissions
         $adminPermissions = [
             //categories
-            'add-categories',
-            'edit-any-categories',
-            'delete-any-categories',
+            'add-category',
+            'edit-category-any',
+            'delete-category-any',
 
             //products
-            'add-products',
-            'edit-any-products',
-            'delete-any-products',
+            'add-product',
+            'edit-product-any',
+            'delete-product-any',
 
             //properties
-            'add-properties',
-            'edit-any-properties',
-            'delete-any-properties',
+            'add-property',
+            'edit-property-any',
+            'delete-property-any',
 
             
+            
+            //images
+            'add-image',
+            'edit-image-any',
+            'delete-image-any',
+
             //users
-            'view-any-users',
+            'view-user-any',
 
             //orders
-            'view-any-orders',
-            'accept-reject-any-comments',
-            'edit-any-orders-status',
-
-            //images
-            'upload-images',
-            'edit-any-images',
-            'view-image-list',
-            'delete-any-images',
+            'view-order-any',
+            'accept_or_reject-comment-any',
+            'edit-order(status)-any',
 
         ];
         $customerPermissions = [
             //addresses
-            'add-own-addresses',
-            'edit-own-addresses',
-            'delete-own-addresses',
-            'view-own-addresses',
+            'add-address-own',
+            'edit-address-own',
+            'delete-address-own',
+            'view-address-own',
 
             //users
-            'view-own-user',
+            'view-user-own',
 
             //orders
-            'view-own-orders',
-            'edit-own-orders-address',#if status does not equal "sent"
+            'view-order-own',
+            'edit-order(address)-own',#if status does not equal "sent"
+
             //comments
-            'add-comments',
-            'edit-own-comments',
-            'delete-own-comments',
-            'view-any-comments',
+            'add-comment',
+            'edit-comment-own',
+            'delete-comment-own',
+            'delete-comment-any',
+            'view-comment-any',
 
             //user
-            'place-orders',
-            'add-items-to-own-cart',
-            'delete-items-from-own-cart',
+            'place-order',
+            // 'add-items-to-own-cart',
+            'add-cart.item-own',
+            // 'delete-items-from-own-cart',
+            'delete-cart.item-own',
 
             
         ];

@@ -30,7 +30,7 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
-    #[Post('/products', middleware: ['auth:sanctum', 'permission:add-products'])]
+    #[Post('/products', middleware: ['auth:sanctum', 'permission:add-product'])]
     public function create(CreateProductRequest $request)
     {
         $product = new Product();
@@ -72,7 +72,7 @@ class ProductController extends Controller
         return response()->json($product->with(['images', 'properties'])->get()->last());
     }
 
-    #[Patch('/products/{product}', middleware: ['auth:sanctum', 'permission:edit-any-products'])]
+    #[Patch('/products/{product}', middleware: ['auth:sanctum', 'permission:edit-product-any'])]
     public function update(UpdateProductRequest $request, Product $product)
     {
         $product->title = $request->title ?? $product->title;
@@ -119,7 +119,7 @@ class ProductController extends Controller
      *      - remove related comments 
      *      - make product_id in order_items null
      */
-    #[Delete('/products/{product}', middleware: ['auth:sanctum', 'permission:delete-any-products'])]
+    #[Delete('/products/{product}', middleware: ['auth:sanctum', 'permission:delete-product-any'])]
     public function delete(Product $product) {
         $product->cartItems()->detach();
         $product->comments()->delete();

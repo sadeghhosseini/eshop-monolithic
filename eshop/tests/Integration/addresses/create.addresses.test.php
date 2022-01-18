@@ -18,7 +18,7 @@ beforeAll(function () use ($url) {
 Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('creates address', function () use ($url) {
-    actAsUserWithPermission('add-own-addresses');
+    actAsUserWithPermission('add-address-own');
     $address = Address::factory()->make()->makeHidden('customer_id')->toArray();
     $response = post($url, $address);
     $response->assertOk();
@@ -30,7 +30,7 @@ it('creates address', function () use ($url) {
 });
 
 it('returns 400 if inputs are invalid', function ($key, $value) use ($url) {
-    actAsUserWithPermission('add-own-addresses');
+    actAsUserWithPermission('add-address-own');
     $address = Address::factory([
         $key => $value,
     ])->make()->makeHidden('customer_id')->toArray();

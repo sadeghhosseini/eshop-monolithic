@@ -19,7 +19,7 @@ beforeAll(function () use ($url) {
 Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('deletes an address', function () use ($url) {
-    $user = actAsUserWithPermission('delete-own-addresses');
+    $user = actAsUserWithPermission('delete-address-own');
     $address = Address::factory([
         'customer_id' => $user->id,
     ])->create();
@@ -30,7 +30,7 @@ it('deletes an address', function () use ($url) {
 });
 
 it('returns 404 if address does not exist', function () use ($url) {
-    $user = actAsUserWithPermission('delete-own-addresses');
+    $user = actAsUserWithPermission('delete-address-own');
     $response = delete(u($url, 'id', 1));
     $response->assertStatus(404);
 });

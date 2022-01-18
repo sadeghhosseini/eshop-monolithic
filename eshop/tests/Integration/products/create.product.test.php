@@ -25,8 +25,8 @@ beforeAll(function () use ($url) {
 setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('creates a product without properties and images', function () use ($url) {
-    // Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('add-products'));
-    actAsUserWithPermission('add-products');
+    // Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('add-product'));
+    actAsUserWithPermission('add-product');
     $category = Category::factory()->create();
     $product = Product::factory([
         'category_id' => $category->id,
@@ -38,7 +38,7 @@ it('creates a product without properties and images', function () use ($url) {
 });
 
 it('creates a product with properties', function ()  use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $properties = Property::factory()
         ->count(3)
         ->for(Category::factory())
@@ -63,7 +63,7 @@ it('creates a product with properties', function ()  use ($url) {
 });
 
 it('creates a product with new properties', function ()  use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $category = Category::factory()->create();
     $properties = Property::factory([
         'category_id' => $category->id,
@@ -94,7 +94,7 @@ it('creates a product with new properties', function ()  use ($url) {
  * asserts records are added in products_images table
  */
 it('creates a product with new_images', function ()  use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $category = Category::factory()->create();
     Storage::fake('local');
     $images = [
@@ -120,7 +120,7 @@ it('creates a product with new_images', function ()  use ($url) {
 });
 
 it('creates a product with image_ids', function () use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $images = Image::factory()->count(3)->create();
     $imageIds = $images->map(fn ($image) => $image->id);
 
@@ -140,7 +140,7 @@ it('creates a product with image_ids', function () use ($url) {
 });
 
 it('returns 400 if image_ids is not an array of forein keys', function () use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $image = Image::factory()->create();
     $response = post($url, Product::factory([
         'image_ids' => [$image->id, 2, 3],
@@ -155,7 +155,7 @@ it('returns 400 if image_ids is not an array of forein keys', function () use ($
 });
 
 it('returns 400 if new properties title already exists for the category', function () use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $category = Category::factory()->create();
     $existingProperty = Property::factory(['category_id' => $category->id])->create();
     $properties = Property::factory(['category_id' => $category->id])->count(3)->make();
@@ -170,7 +170,7 @@ it('returns 400 if new properties title already exists for the category', functi
 });
 
 it('returns 400 if input data is not valid', function ($key, $value) use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $product = collect(Product::factory([$key => $value])->make());
     if (is_null($value)) {
         $product = $product->collect()->forget($key);
@@ -190,7 +190,7 @@ it('returns 400 if input data is not valid', function ($key, $value) use ($url) 
 ]);
 
 it("returns 400 if new_images is not an array of files -> 'new_images.*' => ['file']", function () use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $product = Product::factory()->make();
     $response = post($url, array_merge(
         $product->toArray(),
@@ -200,7 +200,7 @@ it("returns 400 if new_images is not an array of files -> 'new_images.*' => ['fi
 });
 
 it('returns 400 if category_id is not a foreign key(does not map to any real category record) -> new ForeignKeyExists', function () use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $response = post($url, Product::factory(['category_id' => 322])->make()->toArray());
     $response->assertStatus(400);
     expect($response->baseResponse->content())
@@ -211,7 +211,7 @@ it('returns 400 if category_id is not a foreign key(does not map to any real cat
 });
 
 it('returns 400 if property_ids is not an array of foreign keys -> new ForeignKeyExists', function () use ($url) {
-    actAsUserWithPermission('add-products');
+    actAsUserWithPermission('add-product');
     $propertyCount = 3;
     $response = post($url, Product::factory([
         'property_ids' => Property::factory()

@@ -30,7 +30,7 @@ setupAuthorization(fn($closure) => beforeEach($closure));
  *      - make product_id in order_items null
  */
 it("deletes product", function () use ($url){
-    actAsUserWithPermission('delete-any-products');
+    actAsUserWithPermission('delete-product-any');
     //create product
     //add comments to product
     $product = Product::factory()

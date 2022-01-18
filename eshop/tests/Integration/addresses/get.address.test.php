@@ -18,7 +18,7 @@ beforeAll(function () use ($url) {
 
 Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 it('gets an address by id', function () use ($url) {
-    $user = actAsUserWithPermission('view-own-addresses');
+    $user = actAsUserWithPermission('view-address-own');
     $address = Address::factory(['customer_id' => $user->id])->create();
     $response = get(u($url, 'id', $address->id));
     $response->assertOk();
@@ -26,7 +26,7 @@ it('gets an address by id', function () use ($url) {
 });
 
 it('gets returns 404 if address not found', function () use ($url) {
-    $user = actAsUserWithPermission('view-own-addresses');
+    $user = actAsUserWithPermission('view-address-own');
     $response = get(u($url, 'id', 1));
     $response->assertStatus(404);
 });

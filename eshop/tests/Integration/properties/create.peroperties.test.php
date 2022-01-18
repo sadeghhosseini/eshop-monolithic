@@ -17,7 +17,7 @@ beforeAll(function () use ($url) {
 setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('creates a property', function () use ($url) {
-    actAsUserWithPermission('add-properties');
+    actAsUserWithPermission('add-property');
     $property = Property::factory(['is_visible' => true])->make();
     $response = post($url, $property->toArray());
     $response->assertOk();
@@ -31,7 +31,7 @@ it('creates a property', function () use ($url) {
 });
 
 it('checks validation rules', function ($key, $value) use ($url) {
-    actAsUserWithPermission('add-properties');
+    actAsUserWithPermission('add-property');
     $property = Property::factory([
         $key => $value,
     ])->make();
