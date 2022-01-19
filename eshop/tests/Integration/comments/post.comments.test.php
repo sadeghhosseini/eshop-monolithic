@@ -19,12 +19,14 @@ beforeAll(function () use ($url) {
 Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('creates a comment for a post', function () use ($url) {
-    actAsUserWithPermission('add-comment');
+    $user = actAsUserWithPermission('add-comment');
     $product = Product::factory()->create();
     $comment = Comment::factory([
         'product_id' => $product->id,
+        'commenter_id' => $user->id,
     ])->make();
-    $response = post(u($url, 'productId', $product->id), $comment->toArray());
+    $response = post(u($url, 'productId', $product->id),
+         $comment->makeHidden('commenter_id')->toArray());
     $response->assertOk();
     expect($product->comments()->get()->last()->toArray())
         ->toMatchArray($comment->toArray());

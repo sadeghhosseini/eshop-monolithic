@@ -4,6 +4,7 @@ use App\Models\Comment;
 use App\Models\Product;
 
 use function Pest\Laravel\get;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\u;
 
@@ -16,6 +17,7 @@ beforeAll(function () use ($url) {
 });
 
 it('gets all comments with their reply count - number of direct children comments', function () use ($url) {
+    actAsUser();
     $product = Product::factory()->create();
     $commentWithReply = Comment::factory([
         'product_id' => $product->id,

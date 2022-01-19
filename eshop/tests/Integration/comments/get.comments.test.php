@@ -4,6 +4,7 @@ use App\Models\Comment;
 use App\Models\Product;
 
 use function Pest\Laravel\get;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\u;
 
@@ -15,7 +16,8 @@ beforeAll(function () use ($url) {
     printEndpoint('GET', $url);
 });
 
-it("get a comment with it's direct replies(direct child comments)", function ($count) use ($url) {
+it("get a comment with it's direct replies -direct child comments-", function ($count) use ($url) {
+    actAsUser();
     $comment = Comment::factory();
     if ($count > 0) {
         $comment = $comment->has(
