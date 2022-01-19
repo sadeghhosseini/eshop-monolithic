@@ -37,9 +37,9 @@ class AddressController extends Controller
      * TODO for a customer returns all his/her address
      * for admin returns all customers' address 
      */
-    #[Get('/addresses', middleware: ['permission:view-address-own|view-any-addresses'])]
+    #[Get('/addresses', middleware: ['permission:view-address-own|view-address-any'])]
     public function getAll(Request $request) {
-        if ($request->user()->hasPermissionTo('view-any-addresses')) {
+        if ($request->user()->hasPermissionTo('view-address-any')) {
             return response()->json(User::all());
         }
         
@@ -49,8 +49,20 @@ class AddressController extends Controller
 
     }
 
-    #[Get('/addresses/{address}')]
-    public function get(Address $address) {
+    #[Get('/addresses/{address}', middleware: ['permission:view-address-own|view-address-any'])]
+    public function get(Request $request, Address $address) {
+        $isOwner = $request->user()->id == $address->customer->id;
+        $has_viewAddressOwn_permission = $request->user()->hasPermissionTo('view-address-own');
+        $has_viewAddressAny_permission = $request->user()->hasPermissionTo('view-address-any');
+        $hasOnly_viewAddressOwn_permission = $has_viewAddressOwn_permission && !$has_viewAddressAny_permission;
+        if (!$has_viewAddressAny_permission && !$has_viewAddressOwn_permission) {
+            throw new AuthorizationException();
+        }
+
+        if ($hasOnly_viewAddressOwn_permission && !$isOwner) {
+            throw new AuthorizationException();
+        }
+
         return response()->json($address);
     }
 
