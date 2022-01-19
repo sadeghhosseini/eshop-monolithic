@@ -62,6 +62,7 @@ class PermissionSeeder extends Seeder
             'edit-address-own',
             'delete-address-own',
             'view-address-own',
+            'view-address-any',//ta inja test anjam shod
 
             //users
             'view-user-own',
