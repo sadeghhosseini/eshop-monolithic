@@ -2,6 +2,7 @@
 
 use App\Models\Category;
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\preparePermissions;
 use function Tests\helpers\printEndpoint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,14 +14,11 @@ beforeAll(function() use ($url) {
     printEndpoint('POST', $url);
 });
 
-beforeEach(function() {
-    $this->seed(\Database\Seeders\PermissionSeeder::class);
-    $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->registerPermissions();
-});
+Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('creates a category without parent', function () use ($url) {
     // Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->assignRole('admin'));
-    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('add-category'));
+    actAsUserWithPermission('add-category');
     $category = Category::factory()->make();
     $response = post($url, $category->toArray());
     $response->assertOk();
@@ -30,7 +28,7 @@ it('creates a category without parent', function () use ($url) {
 });
 
 it('creates a category with parent', function () use ($url) {
-    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('add-category'));
+    actAsUserWithPermission('add-category');
     $parentCategory = Category::factory()->create();
     $category = Category::factory(['parent_id' => $parentCategory->id])->make();
     $response = post($url, $category->toArray());
@@ -42,7 +40,7 @@ it('creates a category with parent', function () use ($url) {
 });
 
 it('returns 400 if input data is not valid', function () use ($url) {
-    Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->givePermissionTo('add-category'));
+    actAsUserWithPermission('add-category');
     $category = Category::factory(['title' => ''])->make();
     $response = post($url, $category->toArray());
     $response->assertStatus(400);
