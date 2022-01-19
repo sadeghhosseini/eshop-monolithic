@@ -22,6 +22,11 @@ function actAsUserWithPermission($permission) {
     return \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create()->givePermissionTo($permission));
 }
 
+function actAsUser() {
+    return \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create());
+}
+
+
 /**
  * @param $closure fn($closure) => beforeEach($closure)
  */
