@@ -1,6 +1,7 @@
 <?php
 
 use function Pest\Laravel\delete;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\setupAuthorization;
@@ -45,4 +46,22 @@ it('deletes related product_properties records', function () use ($url) {
                 ->exists()
         )->toBeFalse();
     });
+});
+
+
+#delete
+it('returns 401 if user is not authenticated', function () use ($url) {
+    $item = Property::factory()->create();
+    $response = delete(
+        u($url, 'id', $item->id),
+    );
+    $response->assertUnauthorized();
+});
+it('returns 403 if user is not permitted', function () use ($url) {
+    actAsUser();
+    $item = Property::factory()->create();
+    $response = delete(
+        u($url, 'id', $item->id),
+    );
+    $response->assertForbidden();
 });

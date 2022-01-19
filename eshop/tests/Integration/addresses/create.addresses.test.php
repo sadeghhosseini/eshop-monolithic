@@ -4,6 +4,7 @@ use App\Models\Address;
 use App\Models\User;
 
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 
@@ -47,5 +48,22 @@ it('returns 401 if not logged in', function() use ($url) {
     $address = Address::factory()->make()->makeHidden('customer_id');
     $response = post($url, $address->toArray());
     $response->assertStatus(401);
+});
 
+it('returns 401 if user is not authenticated', function () use ($url) {
+    $item = Address::factory()->make();
+    $response = post(
+        $url,
+        $item->toArray()
+    );
+    $response->assertUnauthorized();
+});
+it('returns 403 if user is not permitted', function () use ($url) {
+    actAsUser();
+    $item = Address::factory()->make();
+    $response = post(
+        $url,
+        $item->toArray()
+    );
+    $response->assertForbidden();
 });

@@ -5,6 +5,7 @@ use App\Models\Image;
 use App\Models\Product;
 use App\Models\Property;
 use function Pest\Laravel\patch;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\buildUrl;
 use function Tests\helpers\printEndpoint;
@@ -23,7 +24,7 @@ beforeAll(function () use ($url) {
     printEndpoint('PATCH', $url);
 });
 
-setupAuthorization(fn($closure) => beforeEach($closure));
+setupAuthorization(fn ($closure) => beforeEach($closure));
 function decode(TestResponse $response)
 {
     return json_decode($response->baseResponse->content());
@@ -131,7 +132,7 @@ function updateWithNewProperties($url, $existingPropertyIds = [])
     expect(
         $product->properties->toArray()
     )->toHaveCount(count($properties->toArray()) + count($existingPropertyIds));
-    
+
     expect(
         $product->properties
             ->map(fn ($item) => collect($item)->only('category_id', 'title'))
@@ -141,12 +142,12 @@ function updateWithNewProperties($url, $existingPropertyIds = [])
         ...$properties
             ->map(fn ($item) => collect($item)->only('category_id', 'title'))
             ->toArray(),
-    ], 'title', function($a, $b) {
+    ], 'title', function ($a, $b) {
         expect($a['title'])->toEqual($b['title']);
     });
 }
 
-it('updates simple product fields', function ($key) use($url){
+it('updates simple product fields', function ($key) use ($url) {
     actAsUserWithPermission('edit-product-any');
     $product = Product::factory()->create();
     $value = Product::factory()->make()->$key;
@@ -160,7 +161,7 @@ it('updates simple product fields', function ($key) use($url){
     ['price'],
 ]);
 
-it('updates category_id', function () use ($url){
+it('updates category_id', function () use ($url) {
     actAsUserWithPermission('edit-product-any');
     $category = Category::factory()->create();
     $product = Product::factory()->create();
@@ -171,7 +172,7 @@ it('updates category_id', function () use ($url){
     expect($body->category_id)->toEqual($category->id);
 });
 
-it('updates image_ids by adding new image_ids', function () use ($url){
+it('updates image_ids by adding new image_ids', function () use ($url) {
     actAsUserWithPermission('edit-product-any');
     updateIdsByAdding($url, Image::class, 'image_ids', 'images');
 });
@@ -219,4 +220,23 @@ it('returns 400 if new image_ids are not valid foreign keys', function () use ($
 it('returns 400 if new property_ids are not valid foreign keys', function () use ($url) {
     actAsUserWithPermission('edit-product-any');
     updateIdsByAddingNonValidForeignKey($url, Image::class, 'property_ids', 'properties');
+});
+
+it('returns 401 if user is not authenticated', function () use ($url) {
+    $product = Product::factory()->create();
+    $response = patch(
+        u($url, 'id', $product->id),
+        Product::factory()->make()->toArray()
+    );
+    $response->assertUnauthorized();
+});
+
+it('returns 403 if user is not permitted', function () use ($url) {
+    actAsUser();
+    $product = Product::factory()->create();
+    $response = patch(
+        u($url, 'id', $product->id),
+        Product::factory()->make()->toArray()
+    );
+    $response->assertForbidden();
 });

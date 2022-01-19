@@ -1,6 +1,7 @@
 <?php
 
 use function Pest\Laravel\delete;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\getUrl;
 use function Tests\helpers\printEndpoint;
@@ -50,4 +51,20 @@ it('image deletion cascades to products_images records', function () use ($url) 
     $response = delete(u($url, 'id', $imageId));
     $response->assertOk();
     expect(Image::where('id', $imageId)->exists())->toBeFalse();
+});
+
+it('returns 401 if user is not authenticated', function () use ($url) {
+    $item = Image::factory()->create();
+    $response = delete(
+        u($url, 'id', $item->id),
+    );
+    $response->assertUnauthorized();
+});
+it('returns 403 if user is not permitted', function () use ($url) {
+    actAsUser();
+    $item = Image::factory()->create();
+    $response = delete(
+        u($url, 'id', $item->id),
+    );
+    $response->assertForbidden();
 });

@@ -4,6 +4,7 @@ use App\Models\Address;
 use App\Models\User;
 
 use function Pest\Laravel\delete;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\u;
@@ -33,4 +34,20 @@ it('returns 404 if address does not exist', function () use ($url) {
     $user = actAsUserWithPermission('delete-address-own');
     $response = delete(u($url, 'id', 1));
     $response->assertStatus(404);
+});
+
+it('returns 401 if user is not authenticated', function () use ($url) {
+    $item = Address::factory()->create();
+    $response = delete(
+        u($url, 'id', $item->id),
+    );
+    $response->assertUnauthorized();
+});
+it('returns 403 if user is not permitted', function () use ($url) {
+    actAsUser();
+    $item = Address::factory()->create();
+    $response = delete(
+        u($url, 'id', $item->id),
+    );
+    $response->assertForbidden();
 });

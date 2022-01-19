@@ -1,6 +1,7 @@
 <?php
 
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 
@@ -86,4 +87,23 @@ it('returns 400 if uploaded file is anything other than jpg|png', function () us
         ]
     ]);
     $response->assertStatus(400);
+});
+
+
+it('returns 401 if user is not authenticated', function () use ($url) {
+    $item = Image::factory()->make();
+    $response = post(
+        $url,
+        $item->toArray()
+    );
+    $response->assertUnauthorized();
+});
+it('returns 403 if user is not permitted', function () use ($url) {
+    actAsUser();
+    $item = Image::factory()->make();
+    $response = post(
+        $url,
+        $item->toArray()
+    );
+    $response->assertForbidden();
 });

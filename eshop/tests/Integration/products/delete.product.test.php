@@ -1,6 +1,7 @@
 <?php
 
 use function Pest\Laravel\delete;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\getUrl;
 use function Tests\helpers\printEndpoint;
@@ -22,14 +23,14 @@ $url = '/api/products/{id}';
 beforeAll(function () use ($url) {
     printEndpoint('DELETE', $url);
 });
-setupAuthorization(fn($closure) => beforeEach($closure));
+setupAuthorization(fn ($closure) => beforeEach($closure));
 /**
  * operations in respect to relatins:
  *      - remove from carts 
  *      - remove related comments 
  *      - make product_id in order_items null
  */
-it("deletes product", function () use ($url){
+it("deletes product", function () use ($url) {
     actAsUserWithPermission('delete-product-any');
     //create product
     //add comments to product
@@ -46,7 +47,7 @@ it("deletes product", function () use ($url){
 
     //add product to cart of the user
     $user->cart->items()->attach($product->id, ['quantity' => 2]);
-    
+
     //create order record in order_items
     $user->orders->last()->items()->attach(
         $product->id,
@@ -54,7 +55,7 @@ it("deletes product", function () use ($url){
     );
     //call end point
     $response = delete(u($url, 'id', $product->id));
-    $response->assertOk(); 
+    $response->assertOk();
     //removes product from cart
     // expect(DB::table('cart_items')->where('product_id', $product->id)->exists())->toBeFalse();
     expect($product->cartItems()->exists())->toBeFalse();
@@ -65,4 +66,17 @@ it("deletes product", function () use ($url){
     expect(Product::find($product->id))->toBeNull();
     //makes order_items.product_id null
     expect($product->orderItems()->exists())->toBeFalse();
+});
+
+it('returns 401 if user is not authenticated', function () use ($url) {
+    $product = Product::factory()->create();
+    $response = delete(u($url, 'id', $product->id));
+    $response->assertUnauthorized();
+});
+
+it('returns 403 if user is not permitted', function () use ($url) {
+    actAsUser();
+    $product = Product::factory()->create();
+    $response = delete(u($url, 'id', $product->id));
+    $response->assertForbidden();
 });

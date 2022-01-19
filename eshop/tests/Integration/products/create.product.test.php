@@ -5,6 +5,7 @@ use App\Models\Image;
 use App\Models\Product;
 use App\Models\Property;
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\setupAuth;
@@ -230,4 +231,17 @@ it('returns 400 if property_ids is not an array of foreign keys -> new ForeignKe
             $m->toContain('properties');
             $m->toContain('4, 5, 9');
         });
+});
+
+it('it returns 401 if user is not authenticated', function() use ($url) {
+    $product = Product::factory()->make();
+    $response = post($url, $product->toArray());
+    $response->assertUnauthorized();
+});
+
+it('it returns 403 if user is not permitted', function() use ($url) {
+    actAsUser();
+    $product = Product::factory()->make();
+    $response = post($url, $product->toArray());
+    $response->assertForbidden();
 });

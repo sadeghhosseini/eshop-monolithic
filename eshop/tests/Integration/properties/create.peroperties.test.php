@@ -1,6 +1,7 @@
 <?php
 
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\setupAuthorization;
@@ -45,3 +46,17 @@ it('checks validation rules', function ($key, $value) use ($url) {
     ['category_id', 123],//category_id => ForeinKeyExists
     ['category_id', ''],//category_id => required
 ]);
+
+it('returns 401 if user is not authenticated', function() use ($url) {
+    $property = Property::factory()->make();
+    $response = post($url, $property->toArray());
+    $response->assertUnauthorized();
+    
+});
+it('returns 403 if user is not permitted', function() use ($url) {
+    actAsUser();
+    $property = Property::factory()->make();
+    $response = post($url, $property->toArray());
+    $response->assertForbidden();
+    
+});

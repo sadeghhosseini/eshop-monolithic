@@ -2,6 +2,7 @@
 
 use App\Models\Category;
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\preparePermissions;
 use function Tests\helpers\printEndpoint;
@@ -17,7 +18,6 @@ beforeAll(function() use ($url) {
 Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 
 it('creates a category without parent', function () use ($url) {
-    // Laravel\Sanctum\Sanctum::actingAs(App\Models\User::factory()->create()->assignRole('admin'));
     actAsUserWithPermission('add-category');
     $category = Category::factory()->make();
     $response = post($url, $category->toArray());
@@ -44,4 +44,15 @@ it('returns 400 if input data is not valid', function () use ($url) {
     $category = Category::factory(['title' => ''])->make();
     $response = post($url, $category->toArray());
     $response->assertStatus(400);
+});
+
+it('returns 403 if user is not permitted', function() use ($url) {
+    $user = actAsUser();
+    $result = post($url, Category::factory()->make()->toArray());
+    $result->assertForbidden();//status = 403
+});
+
+it('returns 401 if user is not authenticated', function() use ($url) {
+    $result = post($url, Category::factory()->make()->toArray());
+    $result->assertUnauthorized();//status = 401
 });
