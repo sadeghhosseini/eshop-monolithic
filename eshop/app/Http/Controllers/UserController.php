@@ -15,10 +15,10 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware('auth:sanctum')]
 class UserController extends Controller
 {
-    #[Get('/users', middleware: ['auth:sanctum', 'permission:view-user-own|view-any-user'])]
+    #[Get('/users', middleware: ['auth:sanctum', 'permission:view-user-own|view-user-any'])]
     public function getAll(Request $request)
     {
-        if ($request->user()->hasPermissionTo('view-any-user')) {
+        if ($request->user()->hasPermissionTo('view-user-any')) {
             return response()->json(User::all());
         }
 
@@ -28,23 +28,26 @@ class UserController extends Controller
         }
     }
 
-    #[Get('/users/{user}', middleware: ['permission:view-user-own|view-any-user'])]
+    #[Get('/users/{user}', middleware: ['permission:view-user-own|view-user-any'])]
     public function get(Request $request, User $user)
     {
-        if (!$request->user()->hasAnyPermission('view-any-user', 'view-user-own')) {
+        $ownerId = $request->user()->id;
+        $has_viewUserOwn_permission = $request->user()->hasPermissionTo('view-user-own');
+        $has_viewUserAny_permission = $request->user()->hasPermissionTo('view-user-own');
+        $isOwner = $ownerId == $user->id;
+
+        #has none of the permissions
+        if (!$has_viewUserAny_permission && !$has_viewUserOwn_permission) {
             throw new AuthorizationException();
         }
 
-        if ($request->user()->hasPermissionTo('view-any-user')) {
-            return response()->json($user);
+        #has only view-user-own permission but is not the owner of $user
+        if (!$has_viewUserAny_permission && $has_viewUserOwn_permission && $isOwner) {
+            throw new AuthorizationException();
         }
 
-        if ($request->user()->hasPermissionTo('view-user-own')) {
-            if ($user->id !== $request->user()->id) {//$user is not the current user
-                throw new AuthorizationException();
-            }
-            return response()->json($user);
-        }
+
+        return response()->json($user);
     }
 
     #[Patch('/users/{user}')]
