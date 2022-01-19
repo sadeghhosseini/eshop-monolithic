@@ -4,6 +4,7 @@ use App\Models\Comment;
 use App\Models\Product;
 
 use function Pest\Laravel\post;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\u;
 
@@ -15,7 +16,10 @@ beforeAll(function () use ($url) {
     printEndpoint('POST', $url);
 });
 
+Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
+
 it('creates a comment for a post', function () use ($url) {
+    actAsUserWithPermission('add-comment');
     $product = Product::factory()->create();
     $comment = Comment::factory([
         'product_id' => $product->id,
@@ -26,6 +30,7 @@ it('creates a comment for a post', function () use ($url) {
         ->toMatchArray($comment->toArray());
 });
 it('returns 400 if inputs are invalid', function ($key, $value) use ($url) {
+    actAsUserWithPermission('add-comment');
     $product = Product::factory()->create();
     $comment = Comment::factory([
         'product_id' => $product->id,
@@ -38,6 +43,7 @@ it('returns 400 if inputs are invalid', function ($key, $value) use ($url) {
     ['content', ''],//content => required
 ]);
 it('returns 404 if product does not exist', function ($key, $value) use ($url) {
+    actAsUserWithPermission('add-comment');
     $comment = Comment::factory([
         'product_id' => 1,
         $key => $value,

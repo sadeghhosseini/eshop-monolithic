@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CommentFactory extends Factory
@@ -18,6 +19,7 @@ class CommentFactory extends Factory
             'product_id' => Product::factory(),
             'parent_id' => null,
             'content' => $this->faker->sentence(),
+            'commenter_id' => User::factory(),
         ];
     }
 }

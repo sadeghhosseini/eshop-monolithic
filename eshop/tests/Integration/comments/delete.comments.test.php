@@ -4,6 +4,7 @@ use App\Models\Comment;
 use App\Models\Product;
 
 use function Pest\Laravel\delete;
+use function Tests\helpers\actAsUserWithPermission;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\u;
 
@@ -14,8 +15,10 @@ $url = '/api/comments/{id}';
 beforeAll(function () use ($url) {
     printEndpoint('DELETE', $url);
 });
+Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
 
 it("deletes a comment and all it's children and descendants", function () use ($url) {
+    $user = actAsUserWithPermission('delete-comment-any');
     $product = Product::factory()->create();
     $grnadParentComment = Comment::factory(['product_id' => $product->id])
         ->create();
@@ -34,13 +37,13 @@ it("deletes a comment and all it's children and descendants", function () use ($
 
     $response = delete(u($url, 'id', $grnadParentComment->id));
     $response->assertOk();
-    print_r(Comment::all()->toArray());
     expect(Comment::where('id', $grnadParentComment->id)->exists())->toBeFalse();
     expect(Comment::where('id', $parentComment->id)->exists())->toBeFalse();
     expect(Comment::where('id', $uncleComment->id)->exists())->toBeFalse();
     expect(Comment::where('id', $childComment->id)->exists())->toBeFalse();
 });
 it("deletes only a comment and all it's children and descendants", function () use ($url) {
+    $user = actAsUserWithPermission('delete-comment-any');
     $product = Product::factory()->create();
     $grnadParentComment = Comment::factory(['product_id' => $product->id])
         ->create();
