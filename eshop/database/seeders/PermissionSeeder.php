@@ -66,16 +66,13 @@ class PermissionSeeder extends Seeder
             //users
             'view-user-own',
 
-            //orders
-            'view-order-own',
-            'edit-order(address)-own',#if status does not equal "sent"
+
 
             //comments
             'add-comment',
             'edit-comment-own',
             'delete-comment-own',
             'delete-comment-any',
-            'view-comment-any',
 
             //user
             'place-order',
@@ -84,6 +81,9 @@ class PermissionSeeder extends Seeder
             // 'delete-items-from-own-cart',
             'delete-cart.item-own',
 
+            //orders
+            'view-order-own',
+            'edit-order(address)-own',#if status does not equal "sent"
             
         ];
         $permissions = [
