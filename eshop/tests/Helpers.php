@@ -2,6 +2,8 @@
 
 namespace Tests\helpers;
 
+use Illuminate\Testing\TestResponse;
+
 function colorize($items)
 {
     $result = "";
@@ -183,4 +185,9 @@ function buildUrl($url, $labelValues)
         $values,
         $url
     );
+}
+
+
+function getResponseBodyAsArray(TestResponse $response) {
+    return json_decode($response->baseResponse->content());
 }
