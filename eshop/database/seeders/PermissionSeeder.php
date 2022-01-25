@@ -25,6 +25,9 @@ class PermissionSeeder extends Seeder
 
         //create permissions
         $adminPermissions = [
+            //address
+            
+            'view-address-any',
             //categories
             'add-category',
             'edit-category-any',
@@ -39,14 +42,14 @@ class PermissionSeeder extends Seeder
             'add-property',
             'edit-property-any',
             'delete-property-any',
-
+            
             
             
             //images
             'add-image',
             'edit-image-any',
             'delete-image-any',
-
+            
             //users
             'view-user-any',
 
@@ -61,11 +64,11 @@ class PermissionSeeder extends Seeder
             'add-address-own',
             'edit-address-own',
             'delete-address-own',
-            'view-address-own',
-            'view-address-any',//ta inja test anjam shod
+            'view-address-own',//ta inja test anjam shod
 
             //users
             'view-user-own',
+            'edit-user(name)-own',
 
 
 
