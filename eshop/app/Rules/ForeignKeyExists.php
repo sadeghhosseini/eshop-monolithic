@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 class ForeignKeyExists implements Rule
 {
     private $ReferencedTableModelClass;
+    private $existenceCheck;
     private $value;
     private $nonExistingFks;
     /**
@@ -15,9 +16,10 @@ class ForeignKeyExists implements Rule
      *
      * @return void
      */
-    public function __construct($ReferencedTableModelClass)
+    public function __construct($ReferencedTableModelClass, $existenceCheck = null)
     {
         $this->ReferencedTableModelClass = $ReferencedTableModelClass;
+        $this->existenceCheck = $existenceCheck;
     }
 
     /**
@@ -29,19 +31,30 @@ class ForeignKeyExists implements Rule
      */
     public function passes($attribute, $value)
     {
+        $checkCondition = $this->existenceCheck;
         $this->value = $value;
         if (is_array($value) || $value instanceof Collection) {
             $fks = $value;
 
             $this->nonExistingFks = [];
-            foreach($fks as $fk) {
-                if (!$this->ReferencedTableModelClass::where('id', $fk)->exists()) {
-                    $this->nonExistingFks[] = $fk;
+            foreach ($fks as $fk) {
+                if ($checkCondition) {
+                    if (!$checkCondition($fk)) {
+                        $this->nonExistingFks[] = $fk;
+                    }
+                } else {
+                    if (!$this->ReferencedTableModelClass::where('id', $fk)->exists()) {
+                        $this->nonExistingFks[] = $fk;
+                    }
                 }
             }
             return empty($this->nonExistingFks);
         } else {
-            return $this->ReferencedTableModelClass::where('id', $value)->exists();
+            if ($checkCondition) {
+                return $checkCondition($value);
+            } else {
+                return $this->ReferencedTableModelClass::where('id', $value)->exists();
+            }
         }
     }
 
