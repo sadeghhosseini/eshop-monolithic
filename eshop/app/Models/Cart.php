@@ -12,8 +12,12 @@ class Cart extends Model
 {
     use HasFactory;
     protected $primaryKey = 'customer_id';
+
+    protected $fillable = ['customer_id'];
+    
     public function items() {
-        return Helper::manyToMany($this, Product::class, 'cart_items', 'cart_id', 'product_id');
+        return Helper::manyToMany($this, Product::class, 'cart_items', 'cart_id', 'product_id')
+            ->withPivot('quantity');
     }
 
     public function customer() {
