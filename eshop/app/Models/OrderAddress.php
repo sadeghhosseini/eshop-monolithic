@@ -11,6 +11,13 @@ class OrderAddress extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'province',
+        'city',
+        'rest_of_address',
+        'postal_code',     
+    ];
+    
     public function order() {
         return Helper::oneToOneWithFk($this, Order::class, 'order_id');
     }
