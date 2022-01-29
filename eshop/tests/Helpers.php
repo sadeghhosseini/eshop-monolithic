@@ -2,6 +2,7 @@
 
 namespace Tests\helpers;
 
+use App\Models\User;
 use Illuminate\Testing\TestResponse;
 
 function colorize($items)
@@ -20,11 +21,11 @@ function colorize($items)
     return $result;
 }
 
-function actAsUserWithPermission($permission) {
+function actAsUserWithPermission($permission): User {
     return \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create()->givePermissionTo($permission));
 }
 
-function actAsUser() {
+function actAsUser(): User {
     return \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create());
 }
 
