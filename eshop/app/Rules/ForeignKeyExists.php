@@ -7,8 +7,6 @@ use Illuminate\Support\Collection;
 
 class ForeignKeyExists implements Rule
 {
-    private $ReferencedTableModelClass;
-    private $existenceCheck;
     private $value;
     private $nonExistingFks;
     /**
@@ -16,10 +14,11 @@ class ForeignKeyExists implements Rule
      *
      * @return void
      */
-    public function __construct($ReferencedTableModelClass, $existenceCheck = null)
-    {
-        $this->ReferencedTableModelClass = $ReferencedTableModelClass;
-        $this->existenceCheck = $existenceCheck;
+    public function __construct(
+        private $ReferencedTableModelClass = null,
+        private $existenceCheck = null,
+        private $tableName = null
+    ) {
     }
 
     /**
@@ -65,7 +64,10 @@ class ForeignKeyExists implements Rule
      */
     public function message()
     {
-        $tableName = (new $this->ReferencedTableModelClass())->getTable();
+        $tableName = $this->tableName;
+        if ($this->ReferencedTableModelClass) {
+            $tableName = (new $this->ReferencedTableModelClass())->getTable();
+        }
         if (is_array($this->value) || $this->value instanceof Collection) {
             $values = collect($this->nonExistingFks);
             $values = $values->implode(', ');
