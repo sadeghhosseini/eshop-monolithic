@@ -48,7 +48,7 @@ class User extends Authenticatable implements Authorizable
         'email_verified_at' => 'datetime',
     ];
 
-    public function address() {
+    public function addresses() {
         return Helper::oneToMany($this, Address::class, 'customer_id');
     }
 
