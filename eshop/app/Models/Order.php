@@ -13,10 +13,6 @@ class Order extends Model
 {
     use HasFactory;
 
-    public const PROCESSING_STATUS = 'processing';
-    public const PROCESSED_STATUS = 'not-processed';
-    public const SENT_STATUS = 'sent';
-
     public function address() {
         return Helper::oneToOne($this, OrderAddress::class, 'order_id');
     }
@@ -26,7 +22,8 @@ class Order extends Model
     }
 
     public function items() {
-        return Helper::manyToMany($this, Product::class, 'order_items', 'order_id', 'product_id');
+        return Helper::manyToMany($this, Product::class, 'order_items', 'order_id', 'product_id')
+            ->withPivot('quantity', 'title', 'description', 'price');
     }
 
     public function payment() {
