@@ -15,7 +15,7 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware('auth:sanctum')]
 class UserController extends Controller
 {
-    #[Get('/users', middleware: ['auth:sanctum', 'permission:view-user-own|view-user-any'])]
+    #[Get('/users', middleware: ['permission:view-user-own|view-user-any'])]
     public function getAll(Request $request)
     {
         if ($request->user()->hasPermissionTo('view-user-any')) {
@@ -33,7 +33,7 @@ class UserController extends Controller
     {
         $ownerId = $request->user()->id;
         $has_viewUserOwn_permission = $request->user()->hasPermissionTo('view-user-own');
-        $has_viewUserAny_permission = $request->user()->hasPermissionTo('view-user-own');
+        $has_viewUserAny_permission = $request->user()->hasPermissionTo('view-user-any');
         $isOwner = $ownerId == $user->id;
 
         #has none of the permissions
@@ -42,7 +42,7 @@ class UserController extends Controller
         }
 
         #has only view-user-own permission but is not the owner of $user
-        if (!$has_viewUserAny_permission && $has_viewUserOwn_permission && $isOwner) {
+        if (!$has_viewUserAny_permission && $has_viewUserOwn_permission && !$isOwner) {
             throw new AuthorizationException();
         }
 
@@ -50,8 +50,19 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    #[Patch('/users/{user}')]
+    #[Patch('/users/{user}', middleware: ['permission:edit-user(name)-own'])]
     public function update(UpdateUserRequest $request, User $user)
     {
+        $isOwner = $request->user()->id == $user->id;
+        $has_editUser__name__Own_permission = $request->user()->hasPermissionTo('edit-user(name)-own');
+
+        if (!$has_editUser__name__Own_permission || !$isOwner) {
+            throw new AuthorizationException();
+        }
+
+        $user->name = $request->name ?? $user->name;
+        $user->save();
+        return response()->json($user);
+
     }
 }
