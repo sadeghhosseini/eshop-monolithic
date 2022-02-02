@@ -5,6 +5,8 @@ use App\Utils\RestResponse\MetaData\MetaDataFields;
 use App\Utils\RestResponse\MetaData\MetaDataPagination;
 use App\Utils\RestResponse\MetaData\MetaDataSort;
 use App\Utils\RestResponse\MetaData\MetaDataWhere;
+use \Illuminate\Database\Eloquent\Collection;
+use \Illuminate\Database\Eloquent\Model;
 
 class RestResponseBuilder
 {
@@ -31,12 +33,12 @@ class RestResponseBuilder
         );
     }
 
-    public function setData($data)
+    public function setData(Collection|Model|array $data)
     {
 
-        if ($data instanceof \Illuminate\Database\Eloquent\Collection) {
+        if ($data instanceof Collection) {
             $this->body['data'] = $data->toArray();
-        } else if ($data instanceof \Illuminate\Database\Eloquent\Model) {
+        } else if ($data instanceof Model) {
             $this->body['data'] = $data->toArray();
         } else {
             $this->body['data'] = $data;
