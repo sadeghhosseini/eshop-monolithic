@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Http\Resources\OrderResource;
 use App\Models\Address;
 use App\Models\Enums\OrderStatusEnum;
 use App\Models\Order;
-use App\Models\OrderAddress;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +16,6 @@ use Spatie\RouteAttributes\Attributes\Patch;
 use Spatie\RouteAttributes\Attributes\Get;
 use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Prefix;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 #[Prefix('/api')]
@@ -34,7 +33,8 @@ class OrderController extends Controller
         //create order for user
         $order = new Order();
         $order->customer_id = $customer->id;
-        $order->status = OrderStatusEnum::Processing;
+        #ignore
+        $order->status = OrderStatusEnum::Processing->value;
 
         $order->save();
 
@@ -59,10 +59,8 @@ class OrderController extends Controller
         $order->items()->attach($items);
         //empty the cart
         $customer->cart->items()->detach();
-        return response()->json([
-            'order_id' => $order->id,
-            'items' => $order->items->toArray(),
-        ]);
+
+        return new OrderResource($order->with('items')->first());
     }
 
 
@@ -79,17 +77,12 @@ class OrderController extends Controller
 
         if ($has_viewOrderAny_permission) {
             $orders = Order::with('items')->get()->all();
-            return response()->json($orders);
+            return OrderResource::collection($orders);
         }
 
         if ($has_viewOrderOwn_permission) {
             $customer = $request->user();
-            return response()->json(
-                $customer->orders()
-                    ->with('items')
-                    ->get()
-                    ->toArray()
-            );
+            return OrderResource::collection($customer->orders);
         }
     }
 
@@ -111,7 +104,7 @@ class OrderController extends Controller
         ) {
             throw new AuthorizationException();
         }
-        return response()->json($order->with('items')->first());
+        return new OrderResource($order->with('items')->first());
     }
 
     #[Patch('/orders/{order}', middleware: ['permission:edit-order(address)-own|edit-order(status)-any'])]
@@ -140,18 +133,18 @@ class OrderController extends Controller
 
         if ($has_editOrderAddressOwn_permission && $isOwner) {
             if ($request->has('address_id')) {
-                if($order->status == OrderStatusEnum::Shipped->value) {
+                if ($order->status == OrderStatusEnum::Shipped->value) {
                     throw new AuthorizationException('Your order has been sent. You cannot change the address now.');
                 }
                 $address = Address::find($request->address_id);
-                
+
                 $order->address()->update($address->only([
                     'city',
                     'province',
                     'rest_of_address',
                     'postal_code',
                 ]));
-            } else {//has address info
+            } else { //has address info
                 $order->address()->update($request->all([
                     'city',
                     'province',
@@ -160,6 +153,7 @@ class OrderController extends Controller
                 ]));
             }
         }
-        return response()->json($order->with('address')->first()->toArray());
+        // return RestResponseBuilder::create()->setData($order->with('address')->first())->respond();
+        return new OrderResource($order->with('address')->first());
     }
 }

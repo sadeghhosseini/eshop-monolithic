@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
+use App\Http\Resources\CategoryCollection;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Spatie\RouteAttributes\Attributes\Delete;
 use Spatie\RouteAttributes\Attributes\Get;
@@ -23,14 +25,16 @@ class CategoryController extends Controller
         $newCategory->parent_id = $request->input('parent_id', null);
         $newCategory->save();
 
-        return response()->json($newCategory);
+        // return response()->json($newCategory);
+        return new CategoryResource($newCategory);
     }
 
     #[Get('/categories')]
     public function getAll()
     {
         $categories = Category::all();
-        return response()->json($categories);
+        // return response()->json($categories);
+        return new CategoryCollection($categories);
     }
 
     #[Get('/categories/{category}')]

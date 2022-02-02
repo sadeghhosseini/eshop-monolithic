@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers;
 use App\Http\Requests\CreateAddressRequest;
 use App\Http\Requests\UpdateAddressRequest;
+use App\Http\Resources\AddressResource;
 use App\Models\Address;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -30,7 +32,7 @@ class AddressController extends Controller
         $address->postal_code = $request->postal_code;
         $address->customer_id = $request->user()->id;
         $address->save();
-        return response()->json($address);
+        return new AddressResource($address);
     }
     
     /**
@@ -40,11 +42,11 @@ class AddressController extends Controller
     #[Get('/addresses', middleware: ['permission:view-address-own|view-address-any'])]
     public function getAll(Request $request) {
         if ($request->user()->hasPermissionTo('view-address-any')) {
-            return response()->json(User::all());
+            return AddressResource::collection(User::all());
         }
         
         if ($request->user()->hasPermissionTo('view-address-own')) {
-            return response()->json(User::find(Auth::id()));
+            return AddressResource::collection(User::find(Auth::id()));
         }
 
     }
@@ -63,7 +65,7 @@ class AddressController extends Controller
             throw new AuthorizationException();
         }
 
-        return response()->json($address);
+        return new AddressResource($address);
     }
 
     #[Patch('/addresses/{address}', middleware: ['permission:edit-address-own'])]
@@ -77,7 +79,7 @@ class AddressController extends Controller
         $address->postal_code ??= $request->postal_code;
         $address->save();
 
-        return response()->json();
+        return new AddressResource($address);
     }
 
     #[Delete('/addresses/{address}', middleware: ['permission:delete-address-own'])]
@@ -86,6 +88,6 @@ class AddressController extends Controller
             throw new AuthorizationException();
         }
         $address->delete();
-        return response()->json($address);
+        return new AddressResource($address);
     }
 }

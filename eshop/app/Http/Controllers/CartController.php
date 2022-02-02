@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers;
 use App\Http\Requests\AddCartItemRequest;
 use App\Http\Requests\UpdateCartItemRequest;
 use App\Http\Requests\UpdateCartItemsRequest;
+use App\Http\Resources\CartItemResource;
+use App\Http\Resources\CartResource;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -34,7 +37,7 @@ class CartController extends Controller
         } else {
             $cart->items()->attach($request->product_id, collect($request->all())->only('quantity')->toArray());
         }
-        return response()->json([]);
+        return new CartResource($cart->with('items')->first());
     }
 
     /**
@@ -43,16 +46,27 @@ class CartController extends Controller
     #[Delete('/carts/items/{product}')]
     public function deleteItem(Request $request, Product $product)
     {
+        $item = $request->user()
+            ->cart->items()
+            ->where('product_id', $product->id)
+            ->first();
+
         if ($request->user()->cart()->exists()) {
             $request->user()->cart->items()->detach($product->id);
         }
-        return response()->json($product->id);
+        return new CartItemResource($item);
     }
 
     #[Get('/carts/items')]
     public function getItems(Request $request)
     {
-        return response()->json($request->user()->cart->items);
+        // return response()->json($request->user()->cart->items);
+        return new CartResource(
+            $request->user()
+                ->cart
+                ->with('items')
+                ->first()
+        );
     }
 
     #[Patch('/carts/items/{product}')]
@@ -60,17 +74,19 @@ class CartController extends Controller
     {
         $cart = Cart::firstOrCreate(['customer_id' => $request->user()->id]);
         $cart->items()->updateExistingPivot($request->product_id, ['quantity' => $request->quantity]);
-        return response()->json([]);
+        return new CartItemResource(
+            $cart->items()->where('product_id', $product->id)->first(),
+        );
     }
 
     #[Patch('/carts/items')]
-    public function updateItems(UpdateCartItemsRequest $request, Product $product)
+    public function updateItems(UpdateCartItemsRequest $request)
     {
         $cart = Cart::firstOrCreate(['customer_id' => $request->user()->id]);
         $items = $request->all();
         foreach ($items as $item) {
             $cart->items()->updateExistingPivot($item['product_id'], collect($item)->only('quantity')->toArray());
         }
-        return response()->json([]);
+        return response()->json();
     }
 }
