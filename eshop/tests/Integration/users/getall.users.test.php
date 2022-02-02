@@ -3,7 +3,7 @@
 use function Pest\Laravel\get;
 use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
-use function Tests\helpers\getResponseBodyAsArray;
+use function Tests\helpers\getResponseBody;
 
 use App\Models\User;
 use function Tests\helpers\u;
@@ -22,7 +22,7 @@ it('returns all users for user with view-user-any permission', function() use ($
     $user = actAsUserWithPermission('view-user-any');
     $response = get($url);
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
+    $body = getResponseBody($response);
     expect(is_array($body))->toBeTrue();
     expect(count($body))->toEqual(6);
 });
@@ -32,7 +32,7 @@ it('returns own user with view-user-own permission', function() use ($url) {
     $user = actAsUserWithPermission('view-user-own');
     $response = get($url);
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
+    $body = getResponseBody($response);
     expect(is_array($body))->toBeFalse();
     expect($body->id)->toEqual($user->id);
 });

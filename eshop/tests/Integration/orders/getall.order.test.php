@@ -3,7 +3,7 @@
 use function Pest\Laravel\get;
 use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
-use function Tests\helpers\getResponseBodyAsArray;
+use function Tests\helpers\getResponseBody;
 use function Tests\helpers\printEndpoint;
 
 use App\Models\Order;
@@ -53,8 +53,8 @@ it("returns all orders of the user with view-order-own or view-order-any", funct
 
     $response = get($url);
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
-    expect(collect($body)->count())->toEqual(2);
+    $body = getResponseBody($response);
+    expect(collect($body->data)->count())->toEqual(2);
     for ($i = 0; $i < count($orders); ++$i) {
         collect($orders[$i]->items)
             ->each(function ($item) use ($products, $i) {
@@ -73,6 +73,6 @@ it("returns all orders if permission is view-order-any", function () use ($url) 
 
     $response = get($url);
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
-    expect(collect($body)->count())->toEqual(2);
+    $body = getResponseBody($response);
+    expect(collect($body->data)->count())->toEqual(2);
 });

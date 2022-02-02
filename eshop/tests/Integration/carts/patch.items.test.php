@@ -4,10 +4,11 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 use function Pest\Laravel\post;
 use function Tests\helpers\actAsUser;
-use function Tests\helpers\getResponseBodyAsArray;
+use function Tests\helpers\getResponseBody;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\u;
 
+use App\Helpers;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;

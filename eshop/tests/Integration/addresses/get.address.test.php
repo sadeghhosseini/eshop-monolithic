@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers;
 use App\Models\Address;
 use App\Models\User;
 
@@ -23,7 +24,7 @@ it('gets an address by id', function () use ($url) {
     $address = Address::factory(['customer_id' => $user->id])->create();
     $response = get(u($url, 'id', $address->id));
     $response->assertOk();
-    expect($response->json())->toMatchArray($address->toArray());
+    expect($response->json()['data'])->toMatchArray($address->toArray());
 });
 
 it('gets returns 404 if address not found', function () use ($url) {
@@ -61,7 +62,6 @@ it('returns 200 if user has view-address-any permission and is the owner', funct
     $user = actAsUserWithPermission('view-address-any');
     $item = Address::factory(['customer_id' => $user->id])->create();
     $response = get(u($url, 'id', $item->id));
-    echo $response->baseResponse->content();
     $response->assertOk();
 });
 it('returns 200 if user has both view-address-any and view-address-own permission and is not the owner', function () use ($url) {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers;
 use App\Models\Category;
 use function Pest\Laravel\post;
 use function Tests\helpers\actAsUser;
@@ -21,9 +22,9 @@ it('creates a category without parent', function () use ($url) {
     actAsUserWithPermission('add-category');
     $category = Category::factory()->make();
     $response = post($url, $category->toArray());
-    $response->assertOk();
+    $response->assertCreated();
     $expectedItemsAsArray = $category->makeHidden('parent_id')->toArray();
-    expect($response->json())
+    expect($response->json()['data'])
     ->toMatchArray($expectedItemsAsArray);
 });
 
@@ -32,10 +33,10 @@ it('creates a category with parent', function () use ($url) {
     $parentCategory = Category::factory()->create();
     $category = Category::factory(['parent_id' => $parentCategory->id])->make();
     $response = post($url, $category->toArray());
-    $response->assertOk();
+    $response->assertCreated();
     $expectedResponseItemAsArray = $response->json();
     $expectedItemsAsArray = $category->toArray();
-    expect($expectedResponseItemAsArray)
+    expect($expectedResponseItemAsArray['data'])
     ->toMatchArray($expectedItemsAsArray);
 });
 

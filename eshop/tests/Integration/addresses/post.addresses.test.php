@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers;
 use App\Models\Address;
 use App\Models\User;
 
@@ -22,9 +23,9 @@ it('creates address', function () use ($url) {
     actAsUserWithPermission('add-address-own');
     $address = Address::factory()->make()->makeHidden('customer_id')->toArray();
     $response = post($url, $address);
-    $response->assertOk();
+    $response->assertCreated();
     expect(
-        Address::find($response->json()['id'])->toArray()
+        Address::find($response->json()['data']['id'])->toArray()
     )->toMatchArray(
         $address
     );

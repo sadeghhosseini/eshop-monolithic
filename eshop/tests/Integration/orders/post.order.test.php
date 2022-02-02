@@ -2,7 +2,7 @@
 
 use function Pest\Laravel\post;
 use function Tests\helpers\actAsUser;
-use function Tests\helpers\getResponseBodyAsArray;
+use function Tests\helpers\getResponseBody;
 use function Tests\helpers\printEndpoint;
 
 use App\Models\Address;
@@ -36,7 +36,6 @@ it('creats a new order', function () use ($url) {
     $cart->items()->attach($dataToAttach);
     $response = post($url, ['address_id' => $user->addresses->first()->id]);
     $response->assertOk();
-
     $order = Order::where('customer_id', $user->id)->first();
     expect($order)->not()->toBeNull();
 

@@ -3,7 +3,7 @@
 use function Pest\Laravel\patch;
 use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
-use function Tests\helpers\getResponseBodyAsArray;
+use function Tests\helpers\getResponseBody;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\u;
 
@@ -19,10 +19,6 @@ beforeAll(function () use ($url) {
 });
 
 Tests\helpers\setupAuthorization(fn($closure) => beforeEach($closure));
-
-it('returns 401 if not logged in', function() use ($url) {
-   
-});
 
 it('returns 403 if has no permission', function() use ($url) {
     $user = actAsUser();
@@ -53,7 +49,7 @@ it('returns 403 if has edit-order__address__-own permission and is not the owner
 test("user cannot change his/her own order's address when order.status is shipped", function() use ($url) {
     $user = actAsUserWithPermission('edit-order(address)-own');
     $order = Order::factory(['customer_id' => $user->id])->create();
-    $order->status = OrderStatusEnum::Shipped;
+    $order->status = OrderStatusEnum::Shipped->value;
     $order->save();
     $address = Address::factory(['customer_id' => $user->id])->create();
     $response = patch(u($url, 'id', $address->id), ['address_id' => $address->id]);
@@ -93,9 +89,9 @@ it("updates order's address using address_id", function() use ($url) {
         'address_id' => $newAddress->id,
     ]);
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
+    $body = getResponseBody($response);
     expect(
-        collect($body->address)->only(
+        collect($body->data->address)->only(
             'province',
             'city',
             'rest_of_address',
@@ -121,10 +117,10 @@ it("updates order's address using address fields", function() use ($url) {
     
     $response = patch(u($url, 'id', $order->id), $newAddress->makeHidden('customer_id')->toArray());
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
+    $body = getResponseBody($response);
 
     expect(
-        collect($body->address)->only(
+        collect($body->data->address)->only(
             'province',
             'city',
             'rest_of_address',

@@ -3,7 +3,7 @@
 use function Pest\Laravel\get;
 use function Tests\helpers\actAsUser;
 use function Tests\helpers\actAsUserWithPermission;
-use function Tests\helpers\getResponseBodyAsArray;
+use function Tests\helpers\getResponseBody;
 use function Tests\helpers\printEndpoint;
 use function Tests\helpers\u;
 
@@ -40,12 +40,11 @@ it("returns user's own orders if user has view-order-own", function () use ($url
 
     $response = get(u($url, 'id', $order->id));
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
+    $body = getResponseBody($response);
     $products->each(function ($product) use ($body) {
-        $order = $body;
-        $items = $body->items;
+        $items = $body->data->items;
         $foundProduct = collect($items)->filter(function ($item) use ($product) {
-            return $item->id == $product->id;
+            return $item->product_id == $product->id;
         })->first();
         expect($product->only(
             'title',
@@ -78,12 +77,12 @@ it("returns 403 if user is trying to get others orders", function () use ($url) 
 
     $response = get(u($url, 'id', $order->id));
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
+    $body = getResponseBody($response);
     $products->each(function ($product) use ($body) {
         $order = $body;
-        $items = $body->items;
+        $items = $body->data->items;
         $foundProduct = collect($items)->filter(function ($item) use ($product) {
-            return $item->id == $product->id;
+            return $item->product_id == $product->id;
         })->first();
         expect($product->only(
             'title',
@@ -103,8 +102,8 @@ it("returns own order if user has view-order-any", function () use ($url) {
 
     $response = get(u($url, 'id', $orders->id));
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
-    expect($body->id)->toEqual($orders->id);
+    $body = getResponseBody($response);
+    expect($body->data->id)->toEqual($orders->id);
 });
 
 it("returns another user's order if user has view-order-any", function () use ($url) {
@@ -113,8 +112,8 @@ it("returns another user's order if user has view-order-any", function () use ($
 
     $response = get(u($url, 'id', $orders->id));
     $response->assertOk();
-    $body = getResponseBodyAsArray($response);
-    expect($body->id)->toEqual($orders->id);
+    $body = getResponseBody($response);
+    expect($body->data->id)->toEqual($orders->id);
 });
 
 

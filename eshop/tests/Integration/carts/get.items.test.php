@@ -2,9 +2,10 @@
 
 use function Pest\Laravel\get;
 use function Tests\helpers\actAsUser;
-use function Tests\helpers\getResponseBodyAsArray;
+use function Tests\helpers\getResponseBody;
 use function Tests\helpers\printEndpoint;
 
+use App\Helpers;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,6 +29,6 @@ it('returns all the cart items for the authenticated user', function() use ($url
     $response = get($url);
     $response->assertOk();
 
-    $body = getResponseBodyAsArray($response);
-    expect(count($body))->toEqual(count($cart->items));
+    $body = getResponseBody($response);
+    expect(count($body->data->items))->toEqual(count($cart->items));
 });
