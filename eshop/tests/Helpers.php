@@ -21,11 +21,13 @@ function colorize($items)
     return $result;
 }
 
-function actAsUserWithPermission($permission): User {
+function actAsUserWithPermission($permission): User
+{
     return \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create()->givePermissionTo($permission));
 }
 
-function actAsUser(): User {
+function actAsUser(): User
+{
     return \Laravel\Sanctum\Sanctum::actingAs(\App\Models\User::factory()->create());
 }
 
@@ -40,7 +42,7 @@ function setupAuthorization($closure)
         $this->seed(\Database\Seeders\PermissionSeeder::class);
         $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->registerPermissions();
     }); */
-    $closure(function() {
+    $closure(function () {
         $this->seed(\Database\Seeders\PermissionSeeder::class);
         $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->registerPermissions();
     });
@@ -189,6 +191,7 @@ function buildUrl($url, $labelValues)
 }
 
 
-function getResponseBodyAsArray(TestResponse $response) {
+function getResponseBody(TestResponse $response): mixed
+{
     return json_decode($response->baseResponse->content());
 }
