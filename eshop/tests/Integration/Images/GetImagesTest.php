@@ -27,7 +27,13 @@ class GetImagesTest extends MyTestCase
         $images = Image::factory()->count(50)->create();
         $response = $this->get($this->getUrl());
         $response->assertOk();
-        $response->assertJsonCount(count($images));
-        expect($response->json())->toMatchArray($images->toArray());
+        $response->assertJsonCount(count($images), 'data');
+        $body = $this->getResponseBodyAsArray($response);
+        expect($body['data'])->toMatchArray($images->toArray());
+        $this->assertArrayHasKey('data', $body);
+        $this->assertMatchArray(
+            $images->toArray(),
+            $body['data'],
+        );
     }
 }

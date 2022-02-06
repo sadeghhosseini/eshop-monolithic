@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateImageRequest;
 use App\Http\Requests\CreateImageRequest;
+use App\Http\Resources\ImageResource;
 use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -19,12 +20,12 @@ class ImageController extends Controller
 
     #[Get('/images')]
     public function getAll(Request $request) {
-        return response()->json(Image::all()->toArray());
+        return new ImageResource(Image::all());
     }
     
     #[Get('/images/{image}')]
     public function get(Image $image) {
-        return response()->json($image);
+        return new ImageResource($image);
     }
 
     #[Post('/images', middleware: ['auth:sanctum', 'permission:add-image'])]
@@ -43,7 +44,8 @@ class ImageController extends Controller
             $models->last()->path = $path;
             $models->last()->save();
         }
-        return response()->json($models->toArray());
+        // return response()->json($models->toArray());
+        return new ImageResource($models);
     }
 
     /**

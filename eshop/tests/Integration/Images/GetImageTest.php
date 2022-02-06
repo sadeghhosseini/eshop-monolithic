@@ -25,10 +25,10 @@ class GetImageTest extends MyTestCase
         $image = Image::factory()->create();
         $response = $this->get($this->url('id', $image->id));
         $response->assertOk();
-        expect($response->baseResponse->content())->json()
-            ->id->toEqual($image->id)
-            ->path->toEqual($image->path);
-    
+        $body = $this->getResponseBody($response);
+        // $this->assertEquals($image->id, $body->data->id);
+        // $this->assertEquals($image->path, $body->data->path);
+        $this->assertEqualsFields($image, $body->data, ['id', 'path']);
     }
 
     
@@ -39,6 +39,5 @@ class GetImageTest extends MyTestCase
     public function testReturns404IfImageWithTheIdDoesNotExist() {
         $response = $this->get($this->url('id', 1));
         $response->assertStatus(404);
-    
     }
 }
