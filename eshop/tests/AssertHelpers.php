@@ -5,6 +5,7 @@ namespace Tests;
 use App\Helpers;
 use App\Models\User;
 use Exception;
+use Illuminate\Testing\Assert;
 use Illuminate\Testing\TestResponse;
 
 trait AssertHelpers
@@ -53,6 +54,59 @@ trait AssertHelpers
             if ($expectationClosure) {
                 $expectationClosure($respItem, $expectedItem);
             }
+        }
+    }
+
+    public function assertMatchArray(array $expected, array $actual)
+    {
+        foreach ($expected as $key => $value) {
+            Assert::assertArrayHasKey($key, $actual);
+
+            Assert::assertEquals(
+                $value,
+                $actual[$key],
+                sprintf(
+                    'Failed asserting that an array has a key %s with the value %g.',
+                    $key,
+                    $actual[$key],
+                ),
+            );
+        }
+
+        return $this;
+    }
+    public function assertMatchSubsetOfArray(array $expected, array $actual)
+    {
+        foreach ($expected as $key => $value) {
+            if (array_key_exists($key, $actual)) {
+
+                Assert::assertEquals(
+                    $value,
+                    $actual[$key],
+                    sprintf(
+                        'Failed asserting that an array has a key %s with the value %g.',
+                        $key,
+                        $actual[$key],
+                    ),
+                );
+            }
+        }
+
+        return $this;
+    }
+
+    public function assertEqualsFields(mixed $expected, mixed $actual, $fields)
+    {
+        foreach ($fields as $field) {
+            Assert::assertEquals(
+                $expected?->$field ?? $expected[$field],
+                $actual?->$field ?? $actual[$field],
+                sprintf(
+                    'Failed -> expected: %g, actual:%g',
+                    $expected?->$field ?? $expected[$field],
+                    $actual?->$field ?? $actual[$field],
+                )
+            );
         }
     }
 }
