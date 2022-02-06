@@ -40,14 +40,16 @@ class CategoryController extends Controller
     #[Get('/categories/{category}')]
     public function get(Category $category)
     {
-        return response()->json($category);
+        return new CategoryResource($category);
+        // return response()->json($category);
     }
 
     #[Delete('/categories/{category}', middleware: ['auth:sanctum', 'can:delete-category-any'])]
     public function delete(Category $category)
     {
         $category->delete();
-        return response()->json([]);
+        // return response()->json([]);
+        return new CategoryResource([]);
     }
 
     #[Patch('/categories/{category}', middleware: ['auth:sanctum', 'can:edit-category-any'])]
@@ -56,6 +58,7 @@ class CategoryController extends Controller
         $category->title = $request->input('title', $category->title);
         $category->description = $request->input('description', $category->description);
         $category->save();
-        return response()->json($category);
+        // return response()->json($category);
+        return new CategoryResource($category);
     }
 }
