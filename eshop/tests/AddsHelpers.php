@@ -69,6 +69,10 @@ trait AddsHelpers
     {
         return json_decode($response->baseResponse->content());
     }
+    public function getResponseBodyAsArray(TestResponse $response): array
+    {
+        return json_decode($response->baseResponse->content(), true);
+    }
 
     public function rpost($data = [])
     {

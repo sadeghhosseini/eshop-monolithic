@@ -16,7 +16,7 @@ class Helpers
             echo "\n\n **died\n";
         } else if ($data instanceof TestResponse) {
             echo "\n\n**dying\n";
-            print_r(getResponseBody($data));
+            print_r(static::getResponseBody($data));
             echo "\n\n **died\n";
         } else {
             echo "\n\n **dying\n";
@@ -24,5 +24,10 @@ class Helpers
             echo "\n\n**died\n";
         }
         die;
+    }
+
+    public static function getResponseBody(TestResponse $response): mixed
+    {
+        return json_decode($response->baseResponse->content());
     }
 }
