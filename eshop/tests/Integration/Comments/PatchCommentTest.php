@@ -4,8 +4,10 @@
 
 namespace Tests\Integration\Comments;
 
+use App\Helpers;
 use App\Models\Comment;
 use App\Models\Product;
+use Faker\Extension\Helper;
 use Tests\MyTestCase;
 
 
@@ -38,8 +40,18 @@ class PatchCommentTest extends MyTestCase
         ])->make();
         $response = $this->patch($this->url('id', $comment->id), $newComment->toArray());
         $response->assertOk();
-        $body = json_decode($response->baseResponse->content());
-        expect($body)->toMatchArray($comment->toArray());
+        $body = $this->getResponseBody($response);
+        $fields = [
+            'id',
+            'content',
+            'parent_id',
+            'created_at',
+            'updated_at',
+        ];
+        $this->assertEqualsCanonicalizing(
+            collect($comment)->only($fields)->toArray(),
+            collect($body->data)->only($fields)->toArray(),
+        );
     }
 
 

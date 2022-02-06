@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers;
 use App\Http\Requests\CreateCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
+use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Models\Product;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -29,7 +31,8 @@ class CommentController extends Controller
         $comment->parent_id ??= $request->parent_id;
         $comment->commenter_id = $request->user()->id;
         $product->comments()->save($comment);
-        return response()->json($product);
+        // return response()->json($comment->with('commenter')->get());
+        return new CommentResource($comment->with('commenter')->first());
     }
 
     #[Get('/products/{product}/comments')]
@@ -39,7 +42,8 @@ class CommentController extends Controller
             ->withCount('replies')
             ->get();
 
-        return response()->json($comments);
+        // return response()->json($comments);
+        return CommentResource::collection($comments);
     }
 
     #[Get('/comments/{comment}')]
@@ -48,8 +52,9 @@ class CommentController extends Controller
         $comment = Comment::where('id', $id)
             ->with('replies', function (HasMany $query) {
                 $query->withCount('replies');
-            })->get();
-        return response()->json($comment);
+            })->with('commenter')->first();
+        // return response()->json($comment);
+        return new CommentResource($comment);
     }
 
     #[Delete('/comments/{comment}', middleware: ['permission:delete-comment-own|delete-comment-any'])]
@@ -71,7 +76,8 @@ class CommentController extends Controller
         }
 
         $comment->delete();
-        return response()->json($comment);
+        // return response()->json($comment);
+        return new CommentResource($comment);
     }
 
     #[Patch('/comments/{comment}', middleware: ['permission:edit-comment-own'])]
@@ -86,6 +92,7 @@ class CommentController extends Controller
         }
         $comment->content ??= $request->content;
         $comment->save();
-        return response()->json($comment);
+        // return response()->json($comment);
+        return new CommentResource($comment);
     }
 }

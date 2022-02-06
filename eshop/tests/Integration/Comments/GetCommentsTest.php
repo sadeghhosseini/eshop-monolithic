@@ -3,6 +3,7 @@
 
 namespace Tests\Integration\Comments;
 
+use App\Helpers;
 use App\Models\Comment;
 use App\Models\Product;
 use Tests\MyTestCase;
@@ -42,10 +43,13 @@ class GetCommentsTest extends MyTestCase
     
         $response = $this->get($this->url('id', $product->id));
         $response->assertOk();
-        $body = json_decode($response->baseResponse->content());
-        expect(count($body))->toEqual(2);
-        expect($body[0]->replies_count)->toEqual(5);
-        expect($body[1]->replies_count)->toEqual(0);
+        $body = $this->getResponseBody($response);
+        $this->assertCount(2, $body->data);
+        // expect(count($body->data))->toEqual(2);
+        $this->assertEquals(5, $body->data[0]->replies_count);
+        $this->assertEquals(0, $body->data[1]->replies_count);
+        // expect($body->data[0]->replies_count)->toEqual(5);
+        // expect($body->data[1]->replies_count)->toEqual(0);
     
     }
 }

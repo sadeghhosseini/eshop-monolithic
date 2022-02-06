@@ -3,6 +3,7 @@
 
 namespace Tests\Integration\Comments;
 
+use App\Helpers;
 use Tests\MyTestCase;
 use App\Models\Comment;
 
@@ -20,8 +21,8 @@ class GetCommentTest extends MyTestCase
     public function dataset_testGetACommentWithItSDirectRepliesDirectChildComments()
     {
         return [
-            [0],
             [10],
+            [0],
             [5]
         ];
     }
@@ -44,9 +45,12 @@ class GetCommentTest extends MyTestCase
 
         $response = $this->get($this->url('id', $comment->id));
         $response->assertOk();
-        $body = json_decode($response->baseResponse->content());
-        expect(
-            collect($body)->last()->replies
-        )->toHaveCount($count);
+        $body = $this->getResponseBody($response);
+
+        $this->assertCount(
+            $count,
+            $body->data->replies
+        );
+
     }
 }

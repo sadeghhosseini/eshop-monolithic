@@ -4,6 +4,7 @@
 
 namespace Tests\Comments;
 
+use App\Helpers;
 use App\Models\Comment;
 use App\Models\Product;
 use Tests\MyTestCase;
@@ -40,6 +41,21 @@ class PostCommentTest extends MyTestCase
         $response->assertOk();
         expect($product->comments()->get()->last()->toArray())
             ->toMatchArray($comment->toArray());
+        $body = $this->getResponseBodyAsArray($response);
+        $this->assertArrayHasKey('data', $body);
+        $this->assertArrayHasKey('commenter', $body['data']);
+        $this->assertEqualsCanonicalizing(
+            $body['data']['commenter'], 
+            $user->only(['id', 'name', 'email'])
+        );
+        $this->assertEqualsCanonicalizing(
+            collect($body['data'])->only([
+                'product_id',
+                'parent_id',
+                'content',
+            ])->toArray(),
+            $comment->toArray()
+        );
     }
 
 
@@ -66,10 +82,11 @@ class PostCommentTest extends MyTestCase
         $response->assertStatus(400);
     }
 
-    
-    public function dataset_testReturns404IfProductDoesNotExist() {
+
+    public function dataset_testReturns404IfProductDoesNotExist()
+    {
         return [
-            ['content', ''],//content => required
+            ['content', ''], //content => required
         ];
     }
     /**

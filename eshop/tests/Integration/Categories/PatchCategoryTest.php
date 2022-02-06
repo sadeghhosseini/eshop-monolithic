@@ -60,7 +60,7 @@ class PatchCategoryTest extends MyTestCase
         $response = $this->patch($this->url(['id' => $category->id]), ['title' => $newTitle]);
         $category->title = $newTitle;
         $response->assertOk();
-        expect($response->json())
+        expect($response->json()['data'])
             ->toMatchArray($category->toArray());
     
     }

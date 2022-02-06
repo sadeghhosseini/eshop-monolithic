@@ -8,9 +8,8 @@ use Tests\MyTestCase;
 
 
 /**
-* @testdox GET /api/categories/{id}
-*/
-
+ * @testdox GET /api/categories/{id}
+ */
 class GetCategoryTest extends MyTestCase
 {
     public function getUrl()
@@ -22,7 +21,6 @@ class GetCategoryTest extends MyTestCase
     /**
      * @testdox returns 404 if no category with the id of {id} exists
      */
-
     public function testReturns404IfNoCategoryWithTheIdOfIdExists()
     {
         $response = $this->get($this->url(['id' => 1]));
@@ -34,7 +32,6 @@ class GetCategoryTest extends MyTestCase
     /**
      * @testdox returns the category with id = {id}
      */
-
     public function testReturnsTheCategoryWithIdEqualsId()
     {
 
@@ -44,6 +41,8 @@ class GetCategoryTest extends MyTestCase
         $response->assertOk();
 
         $expectedItemsAsArray = $category->toArray();
-        expect($response->json())->toEqualCanonicalizing($expectedItemsAsArray);
+        expect(
+            $response->json()['data']
+        )->toEqualCanonicalizing($expectedItemsAsArray);
     }
 }
