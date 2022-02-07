@@ -75,20 +75,28 @@ trait AssertHelpers
 
         return $this;
     }
-    public function assertMatchSubsetOfArray(array $expected, array $actual)
+    public function assertMatchSubsetOfArray(array $subset, array $superset)
     {
-        foreach ($expected as $key => $value) {
-            if (array_key_exists($key, $actual)) {
-
-                Assert::assertEquals(
-                    $value,
-                    $actual[$key],
-                    sprintf(
-                        'Failed asserting that an array has a key %s with the value %g.',
-                        $key,
-                        $actual[$key],
-                    ),
-                );
+        foreach ($subset as $key => $value) {
+            if (array_key_exists($key, $superset)) {
+                Assert::assertArrayHasKey($key, $superset);
+                // Helpers::die([$value, $superset[$key]], false);
+                if (
+                    is_array($value) && Helpers::isAssociativeArray($value) &&
+                    is_array($superset[$key]) && Helpers::isAssociativeArray($superset[$key])
+                ) {
+                    $this->assertMatchSubsetOfArray($value, $superset[$key]);
+                } else {
+                    Assert::assertEquals(
+                        $value,
+                        $superset[$key],
+                        sprintf(
+                            'Failed asserting that an array has a key %s with the value %g.',
+                            $key,
+                            $superset[$key],
+                        ),
+                    );
+                }
             }
         }
 
