@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers;
 use App\Http\Requests\CreateCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
-use App\Http\Resources\CategoryCollection;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Spatie\RouteAttributes\Attributes\Delete;
@@ -33,8 +33,9 @@ class CategoryController extends Controller
     public function getAll()
     {
         $categories = Category::all();
+        // $categories = Category::with('products')->get();
         // return response()->json($categories);
-        return new CategoryCollection($categories);
+        return CategoryResource::collection($categories);
     }
 
     #[Get('/categories/{category}')]
