@@ -3,11 +3,14 @@
 
 namespace Tests\Integration\Products;
 
+use App\Helpers;
 use App\Models\Category;
 use App\Models\Image;
 use App\Models\Product;
 use App\Models\Property;
 use Tests\MyTestCase;
+
+use function Tests\helpers\getResponseBody;
 
 class GetProductTest extends MyTestCase
 {
@@ -40,8 +43,10 @@ class GetProductTest extends MyTestCase
         expect($response->baseResponse->content())->toBeJson();
         $response->assertOk();
 
-        expect($response->json())
-            ->toEqualCanonicalizing($product->toArray());
+        $this->assertEqualsCanonicalizing(
+            $product->toArray(),
+            $this->getResponseBodyAsArray($response)['data'],
+        );
     }
 
 
@@ -53,7 +58,10 @@ class GetProductTest extends MyTestCase
         $product = Product::factory()->has(Property::factory()->count(5))->create();
         $response = $this->get("/api/products/$product->id/properties");
         $response->assertOk();
-        expect($response->json())->toMatchArray($product->properties->toArray());
+        $this->assertMatchSubsetOfArray(
+            $this->getResponseBodyAsArray($response)['data'],
+            $product->properties->toArray(),
+        );
     }
 
 
@@ -65,7 +73,11 @@ class GetProductTest extends MyTestCase
         $product = Product::factory()->has(Image::factory()->count(5))->create();
         $response = $this->get("/api/products/$product->id/images");
         $response->assertOk();
-        expect($response->json())->toMatchArray($product->images->toArray());
+        // expect($response->json())->toMatchArray($product->images->toArray());
+        $this->assertMatchArray(
+            $product->images->toArray(),
+            $this->getResponseBodyAsArray($response)['data'],
+        );
     }
 
 
@@ -77,6 +89,10 @@ class GetProductTest extends MyTestCase
         $product = Product::factory()->for(Category::factory())->create();
         $response = $this->get("/api/products/$product->id/category");
         $response->assertOk();
-        expect($response->json())->toMatchArray($product->category->toArray());
+        // expect($response->json())->toMatchArray($product->category->toArray());
+        $this->assertMatchArray(
+            $product->category->toArray(),
+            $this->getResponseBodyAsArray($response)['data'],
+        );
     }
 }

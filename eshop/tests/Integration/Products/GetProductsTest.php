@@ -6,7 +6,7 @@ namespace Tests\Integration\Products;
 use App\Models\Product;
 use Tests\MyTestCase;
 
-class GetProductsTests extends MyTestCase
+class GetProductsTest extends MyTestCase
 {
     public function getUrl()
     {
@@ -20,7 +20,6 @@ class GetProductsTests extends MyTestCase
     public function testReturnsStatus200AllProductsInDb() {
         $response = $this->rget();
         $response->assertOk();
-    
     }
 
     
@@ -29,10 +28,11 @@ class GetProductsTests extends MyTestCase
     */
     public function testReturnsEmptyArrayIfNoProductsExist() {
         $response = $this->rget();
-        $products = json_decode($response->baseResponse->content());
-        expect($products)->toBeArray();
-        expect(count($products))->toEqual(0);
-    
+        $body = $this->getResponseBodyAsArray($response);
+        // expect($products)->toBeArray();
+        // expect(count($products))->toEqual(0);
+        $this->assertArrayHasKey('data', $body);
+        $this->assertEmpty($body['data']);
     }
 
     
@@ -44,10 +44,14 @@ class GetProductsTests extends MyTestCase
         $products = Product::factory()->count($productCount)->create();
         $response = $this->rget();
         $response->assertOk();
-        $response->assertJsonCount($productCount);
-        expect($response->json())
-            ->toMatchArray($products->toArray());
-    
+        $this->assertCount(
+            $productCount,
+            $this->getResponseBodyAsArray($response)['data'],
+        );
+        $this->assertMatchSubsetOfArray(
+            $products->toArray(),
+            $this->getResponseBodyAsArray($response),
+        );
     }
 
 }

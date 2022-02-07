@@ -40,8 +40,9 @@ class PatchProductTest extends MyTestCase
         $product = Product::factory()->create();
         $value = Product::factory()->make()->$key;
         $response = $this->rpatch(['id', $product->id], [$key => $value]);
-        $body = json_decode($response->baseResponse->content());
-        expect($body->$key)->toEqual($value);
+        $data = $this->getResponseBody($response)->data;
+        // expect($body->$key)->toEqual($value);
+        $this->assertEquals($value, $data->$key);
     }
 
 
@@ -56,8 +57,11 @@ class PatchProductTest extends MyTestCase
         $response = $this->rpatch(['id', $product->id], [
             'category_id' => $category->id,
         ]);
-        $body = json_decode($response->baseResponse->content());
-        expect($body->category_id)->toEqual($category->id);
+        $data = $this->getResponseBody($response)->data;
+        $this->assertEquals(
+            $category->id,
+            $data->category_id,
+        );
     }
 
 
@@ -203,12 +207,20 @@ class PatchProductTest extends MyTestCase
         $response = $this->rpatch(['id', $product->id], [
             $columnName => [...$ids, ...$newIds],
         ]);
-        $body = $this->getResponseBody($response);
-        $responseItemIds = collect($body->$relationField)->map(fn ($item) => $item->id)->toArray();
+        $data = $this->getResponseBody($response)->data;
+        $responseItemIds = collect($data->$relationField)->map(fn ($item) => $item->id)->toArray();
         $expecteItemIds = [...$ids, ...$newIds];
-        expect($responseItemIds)->toMatchArray($expecteItemIds);
+        // expect($responseItemIds)->toMatchArray($expecteItemIds);
+        $this->assertMatchArray(
+            $expecteItemIds,
+            $responseItemIds,
+        );
         $productImageIds = Product::find($product->id)->$relationField->map(fn ($item) => $item->id)->toArray();
-        expect($productImageIds)->toMatchArray([...$ids, ...$newIds]);
+        // expect($productImageIds)->toMatchArray([...$ids, ...$newIds]);
+        $this->assertMatchArray(
+            [...$ids, ...$newIds],
+            $productImageIds,
+        );
     }
 
     private function updateIdsByAddingAndRemoving($ModelClass, $columnName, $relationField)
@@ -221,12 +233,20 @@ class PatchProductTest extends MyTestCase
         $response = $this->rpatch(['id', $product->id], [
             $columnName => [...$itemIds, ...$newIds],
         ]);
-        $body = $this->getResponseBody($response);
-        $responseItemIds = collect($body->$relationField)->map(fn ($item) => $item->id)->toArray();
+        $data = $this->getResponseBody($response)->data;
+        $responseItemIds = collect($data->$relationField)->map(fn ($item) => $item->id)->toArray();
         $expectedItemIds = [...$itemIds, ...$newIds];
         expect($responseItemIds)->toMatchArray($expectedItemIds);
+        $this->assertMatchArray(
+            $responseItemIds,
+            $expectedItemIds,
+        );
         $productItemIds = Product::find($product->id)->$relationField->map(fn ($item) => $item->id)->toArray();
-        expect($productItemIds)->toMatchArray([...$itemIds, ...$newIds]);
+        // expect($productItemIds)->toMatchArray([...$itemIds, ...$newIds]);
+        $this->assertMatchArray(
+            [...$itemIds, ...$newIds],
+            $productItemIds,
+        );
     }
 
     private function updateIdsByAddingNonValidForeignKey($ModelClass, $columnName, $relationField)
@@ -238,8 +258,12 @@ class PatchProductTest extends MyTestCase
             $columnName => [...$itemIds, 55],
         ]);
         $response->assertStatus(400);
-        expect($this->getResponseBody($response)->$columnName)->toBeArray();
-        expect($this->getResponseBody($response)->$columnName[0])->toContain('55');
+        $error = $this->getResponseBody($response);
+        // expect($error->$columnName)->toBeArray();
+        // expect($error->$columnName[0])->toContain('55');
+        $this->assertIsArray($error->$columnName);
+        $errorMessage = $error->$columnName[0];
+        $this->assertStringContainsString('55', $errorMessage);
     }
 
     private function updateWithNewImages($existingImageIds = [])
@@ -263,10 +287,15 @@ class PatchProductTest extends MyTestCase
         $response = $this->rpatch(['id', $productToBeUpdated->id], $product->toArray());
         $response->assertOk();
 
-        $productId = json_decode($response->baseResponse->content())->id;
+        $data = $this->getResponseBody($response)->data;
+        $productId = $data->id;
         $newProduct = Product::find($productId);
-        expect($newProduct->images->toArray())->toBeArray();
-        expect($newProduct->images->toArray())->toHaveCount(count($images) + count($existingImageIds));
+        // expect($newProduct->images->toArray())->toBeArray();
+        // expect($newProduct->images->toArray())->toHaveCount(count($images) + count($existingImageIds));
+        
+        $this->assertIsArray($newProduct->images->toArray());
+        $this->assertCount(count($images) + count($existingImageIds), $newProduct->images->toArray());
+
         $newProductImages = $newProduct->images->filter(fn ($image) => !in_array($image->id, $existingImageIds))->toArray();
         foreach ($newProductImages as $image) {
             #@php-ignore //for vs-code linter
@@ -291,18 +320,12 @@ class PatchProductTest extends MyTestCase
         ])->make()->toArray());
 
         $response->assertOk();
-        $product = Product::find($response->json()['id']);
+        $data = $this->getResponseBodyAsArray($response)['data'];
+        $product = Product::find($data['id']);
         $this->assertCount(
             count($properties->toArray()) + count($existingPropertyIds),
             $product->properties->toArray(),
         );
-        /* expect(
-            $product->properties->toArray()
-        )->toHaveCount(count($properties->toArray()) + count($existingPropertyIds)); */
-
-        // $this->assertEqualsCanonicalizing(
-
-        // )
 
         $this->assertEqualArray(
             $product->properties
@@ -316,25 +339,10 @@ class PatchProductTest extends MyTestCase
             ],
             'title',
             function ($a, $b) {
-                expect($a['title'])->toEqual($b['title']);
+                // expect($a['title'])->toEqual($b['title']);
+                $this->assertEquals($b['title'], $a['title']);
             }
         );
-        /*         expect(
-            $product->properties
-                ->map(fn ($item) => collect($item)->only('category_id', 'title'))
-                ->toArray()
-        )->toEqualArray(
-            [
-                ...(collect($existingPropertyIds ?? [])->map(fn ($id) => Property::select('title', 'category_id')->find($id))->toArray()),
-                ...$properties
-                    ->map(fn ($item) => collect($item)->only('category_id', 'title'))
-                    ->toArray(),
-            ],
-            'title',
-            function ($a, $b) {
-                Helpers::die($a['title']);
-                expect($a['title'])->toEqual($b['title']);
-            }
-        ); */
+        
     }
 }

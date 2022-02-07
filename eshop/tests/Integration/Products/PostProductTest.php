@@ -4,6 +4,7 @@
 
 namespace Tests\Integration\Products;
 
+use App\Helpers;
 use App\Models\Category;
 use App\Models\Image;
 use App\Models\Product;
@@ -31,8 +32,22 @@ class PostProductTest extends MyTestCase
             'category_id' => $category->id,
         ])->make();
         $response = $this->rpost($product->toArray());
-        expect($response->json())
-            ->toMatchArray($product->toArray());
+        $body = $this->getResponseBodyAsArray($response);
+
+        $this->assertMatchArray(
+            $product->toArray(),
+            $body['data'],
+        );
+        $this->assertArrayHasKey(
+            'images',
+            $body['data'],
+        );
+        $this->assertArrayHasKey(
+            'properties',
+            $body['data'],
+        );
+        $this->assertEmpty($body['data']['images']);
+        $this->assertEmpty($body['data']['properties']);
         $response->assertOk();
     }
 
@@ -52,17 +67,26 @@ class PostProductTest extends MyTestCase
             'category_id' => $categoryId,
             'property_ids' => $properties->map(fn ($category) => $category->id)->toArray(),
         ])->make()->toArray());
+        $body = $this->getResponseBodyAsArray($response);
+        $this->assertArrayHasKey(
+            'images',
+            $body['data'],
+        );
+        $this->assertArrayHasKey(
+            'properties',
+            $body['data'],
+        );
         $response->assertOk();
-        expect(
-            $properties
-                ->map(fn ($p) => $p->id)
-                ->toArray()
-        )->toMatchArray(
+        $this->assertMatchArray(
             Product::all()
                 ->last()
                 ->properties
                 ->map(fn ($p) => $p->id)
-                ->toArray()
+                ->toArray(),
+            $properties
+                ->map(fn ($p) => $p->id)
+                ->toArray(),
+
         );
     }
 
@@ -86,13 +110,14 @@ class PostProductTest extends MyTestCase
         ])->make()->toArray());
 
         $response->assertOk();
-        $product = Product::find($response->json()['id']);
-        expect(
-            $product->properties
-                ->map(fn ($item) => collect($item)->only('category_id', 'title'))
-                ->toArray()
-        )->toMatchArray(
+        $body = $this->getResponseBodyAsArray($response);
+        $product = Product::find($response['data']['id']);
+
+        $this->assertMatchArray(
             $properties
+                ->map(fn ($item) => collect($item)->only('category_id', 'title'))
+                ->toArray(),
+            $product->properties
                 ->map(fn ($item) => collect($item)->only('category_id', 'title'))
                 ->toArray()
         );
@@ -118,10 +143,16 @@ class PostProductTest extends MyTestCase
         $response = $this->rpost($product->toArray());
         $response->assertOk();
 
-        $productId = json_decode($response->baseResponse->content())->id;
+        $body = $this->getResponseBody($response);
+        $productId = $body->data->id;
         $newProduct = Product::find($productId);
-        expect($newProduct->images->toArray())->toBeArray();
-        expect($newProduct->images->toArray())->toHaveCount(count($images));
+        // expect($newProduct->images->toArray())->toBeArray();
+        $this->assertIsArray($newProduct->images->toArray());
+        // expect($newProduct->images->toArray())->toHaveCount(count($images));
+        $this->assertCount(
+            count($images),
+            $newProduct->images->toArray(),
+        );
         $newProductImages = $newProduct->images->toArray();
         foreach ($newProductImages as $image) {
             #@php-ignore //for vs-code linter
@@ -144,14 +175,17 @@ class PostProductTest extends MyTestCase
         ])->make()->toArray());
         $response->assertOk();
 
-        $productId = $response->json()['id'];
-        $postImages = collect($response->json()['images'])
+        $productId = $response->json()['data']['id'];
+        $postImages = collect($response->json()['data']['images'])
             ->map(fn ($i) => $i['id'])->toArray();
         $newProductImages = Product::find($productId)->images
             ->map(fn ($i) => $i['id'])->toArray();
-        expect($postImages)->toBeArray();
-        expect($postImages)->toMatchArray($imageIds);
-        expect($newProductImages)->toMatchArray($imageIds);
+        $this->assertIsArray($postImages);
+        $this->assertMatchArray($imageIds->toArray(), $postImages);
+        $this->assertmatchArray($imageIds->toArray(), $newProductImages);
+        // expect($postImages)->toBeArray();
+        // expect($postImages)->toMatchArray($imageIds);
+        // expect($newProductImages)->toMatchArray($imageIds);
     }
 
 
@@ -165,12 +199,12 @@ class PostProductTest extends MyTestCase
         $response = $this->rpost(Product::factory([
             'image_ids' => [$image->id, 2, 3],
         ])->make()->toArray());
-        expect($response->baseResponse->content())->json()
-            ->image_ids->each(function ($m) use ($image) {
-                $m->not->toContain("$image->id");
-                $m->toContain("2");
-                $m->toContain("3");
-            });
+
+        $error = $this->getResponseBody($response);
+        $errorMessage = $error->image_ids[0];
+        $this->assertStringNotContainsString($image->id, $errorMessage);
+        $this->assertStringContainsString("2", $errorMessage);
+        $this->assertStringContainsString("3", $errorMessage);
         $response->assertStatus(400);
     }
 
@@ -248,11 +282,9 @@ class PostProductTest extends MyTestCase
         $this->actAsUserWithPermission('add-product');
         $response = $this->rpost(Product::factory(['category_id' => 322])->make()->toArray());
         $response->assertStatus(400);
-        expect($response->baseResponse->content())
-            ->json()
-            ->category_id->each(function ($m) {
-                $m->toContain('322');
-            });
+        $body = $this->getResponseBody($response);
+        $errorMessage = $body->category_id[0];
+        $this->assertStringContainsString('322', $errorMessage);
     }
 
 
@@ -274,12 +306,11 @@ class PostProductTest extends MyTestCase
                 ->toArray(),
         ])->make()->toArray());
         $response->assertStatus(400);
-        expect($response->baseResponse->content())
-            ->json()
-            ->property_ids->each(function ($m) {
-                $m->toContain('properties');
-                $m->toContain('4, 5, 9');
-            });
+        $errorMessage = $response->json()['property_ids'][0];
+        $this->assertStringContainsString('properties', $errorMessage);
+        $this->assertStringContainsString('4', $errorMessage);
+        $this->assertStringContainsString('5', $errorMessage);
+        $this->assertStringContainsString('9', $errorMessage);
     }
 
 

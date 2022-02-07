@@ -3,7 +3,9 @@
 
 namespace Tests\Integration\Categories;
 
+use App\Helpers;
 use App\Models\Category;
+use App\Models\Product;
 use Tests\MyTestCase;
 
 

@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ImageResource;
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\PropertyResource;
 use App\Models\Image;
 use App\Models\Product;
 use App\Models\Property;
@@ -22,12 +26,14 @@ class ProductController extends Controller
     public function getAll()
     {
         $products = Product::all();
-        return response()->json($products);
+        // return response()->json($products);
+        return ProductResource::collection($products);
     }
     #[Get('/products/{product}')]
     public function get(Product $product)
     {
-        return response()->json($product);
+        // return response()->json($product);
+        return new ProductResource($product);
     }
 
     #[Post('/products', middleware: ['auth:sanctum', 'permission:add-product'])]
@@ -69,7 +75,11 @@ class ProductController extends Controller
                 );
         }
 
-        return response()->json($product->with(['images', 'properties'])->get()->last());
+        // return response()->json($product->with(['images', 'properties'])->get()->last());
+        return new ProductResource(
+            $product->with(['images', 'properties'])
+                ->first()
+        );
     }
 
     #[Patch('/products/{product}', middleware: ['auth:sanctum', 'permission:edit-product-any'])]
@@ -110,7 +120,8 @@ class ProductController extends Controller
                 );
         }
 
-        return response()->json($product->with(['images', 'properties'])->get()->last());
+        // return response()->json($product->with(['images', 'properties'])->get()->last());
+        return new ProductResource($product->with(['images', 'properties'])->first());
     }
 
     /**
@@ -120,7 +131,8 @@ class ProductController extends Controller
      *      - make product_id in order_items null
      */
     #[Delete('/products/{product}', middleware: ['auth:sanctum', 'permission:delete-product-any'])]
-    public function delete(Product $product) {
+    public function delete(Product $product)
+    {
         $product->cartItems()->detach();
         $product->comments()->delete();
         $product->delete();
@@ -128,17 +140,23 @@ class ProductController extends Controller
     }
 
     #[Get('/products/{product}/images')]
-    public function getImages(Product $product) {
-        return response()->json($product->images);
+    public function getImages(Product $product)
+    {
+        // return response()->json($product->images);
+        return ImageResource::collection($product->images);
     }
 
     #[Get('/products/{product}/category')]
-    public function getCategories(Product $product) {
-        return response()->json($product->category);
+    public function getCategories(Product $product)
+    {
+        // return response()->json($product->category);
+        return new CategoryResource($product->category);
     }
-    
+
     #[Get('/products/{product}/properties')]
-    public function getProperties(Product $product) {
-        return response()->json($product->properties);
+    public function getProperties(Product $product)
+    {
+        // return response()->json($product->properties);
+        return PropertyResource::collection($product->properties);
     }
 }
