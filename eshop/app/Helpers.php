@@ -8,26 +8,34 @@ use function Tests\helpers\getResponseBody;
 
 class Helpers
 {
-    public static function die(TestResponse|array|string $data)
+    public static function die(TestResponse|array|string $data, $shouldDie = true)
     {
         if (is_array($data)) {
-            echo "\n\n**dying\n";
+            echo $shouldDie ? "\n\n**dying\n" : "";
             print_r($data);
-            echo "\n\n **died\n";
+            echo $shouldDie ? "\n\n **died\n" : "";
         } else if ($data instanceof TestResponse) {
-            echo "\n\n**dying\n";
+            echo $shouldDie ? "\n\n**dying\n" : "";
             print_r(static::getResponseBody($data));
-            echo "\n\n **died\n";
+            echo $shouldDie ? "\n\n **died\n" : "";
         } else {
-            echo "\n\n **dying\n";
+            echo $shouldDie ? "\n\n **dying\n" : "";
             echo $data;
-            echo "\n\n**died\n";
+            echo $shouldDie ? "\n\n**died\n" : "";
         }
-        die;
+        if ($shouldDie) {
+            die;
+        }
     }
 
-    public static function getResponseBody(TestResponse $response): mixed
+    private static function getResponseBody(TestResponse $response): mixed
     {
         return json_decode($response->baseResponse->content());
+    }
+
+    public static function isAssociativeArray(array $arr)
+    {
+        if (array() === $arr) return false;
+        return array_keys($arr) !== range(0, count($arr) - 1);
     }
 }
