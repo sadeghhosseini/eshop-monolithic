@@ -84,7 +84,8 @@ class PermissionSeeder extends Seeder
             'add-cart.item-own',
             // 'delete-items-from-own-cart',
             'delete-cart.item-own',
-
+            'update-cart.item-own',
+            
             //orders
             'view-order-own',
             'edit-order(address)-own',#if status does not equal "sent"
