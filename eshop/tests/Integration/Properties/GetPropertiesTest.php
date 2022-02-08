@@ -3,6 +3,7 @@
 
 namespace Tests\Integration\Properties;
 
+use App\Helpers;
 use App\Models\Property;
 use Tests\MyTestCase;
 
@@ -22,6 +23,8 @@ class GetPropertiesTest extends MyTestCase
         $properties = Property::factory()->count(20)->create();
         $response = $this->rget();
         $response->assertOk();
-        expect($response->json())->toMatchArray($properties->toArray());
+        $data = $this->getResponseBodyAsArray($response)['data'];
+        // expect($data)->toMatchArray($properties->toArray());
+        $this->assertMatchSubsetOfArray($data, $properties->toArray());
     }
 }

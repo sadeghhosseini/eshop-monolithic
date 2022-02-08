@@ -3,6 +3,7 @@
 
 namespace Tests\Integration\Properties;
 
+use App\Helpers;
 use App\Models\Property;
 use Tests\MyTestCase;
 
@@ -13,7 +14,6 @@ class GetPropertyTest extends MyTestCase
         return '/api/properties/{id}';
     }
 
-
     /**
      * @testdox gets property by id
      */
@@ -22,7 +22,9 @@ class GetPropertyTest extends MyTestCase
         $property = Property::factory()->create();
         $response = $this->rget(['id', $property->id]);
         $response->assertOk();
-        expect($response->json())->title->toEqual($property->title);
+        // expect($response->json())->title->toEqual($property->title);
+        $data = $this->getResponseBody($response)->data;
+        $this->assertEquals($property->title, $data->title);
     }
 
     /**

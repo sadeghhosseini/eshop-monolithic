@@ -3,6 +3,7 @@
 
 namespace Tests\Integration\Users;
 
+use App\Helpers;
 use App\Models\User;
 use Tests\MyTestCase;
 
@@ -23,9 +24,9 @@ class GetUsersTest extends MyTestCase
         $user = $this->actAsUserWithPermission('view-user-any');
         $response = $this->rget();
         $response->assertOk();
-        $body = $this->getResponseBody($response);
-        expect(is_array($body))->toBeTrue();
-        expect(count($body))->toEqual(6);
+        $data = $this->getResponseBodyAsArray($response)['data'];
+        $this->assertIsArray($data);
+        $this->assertCount(6, $data);
     }
 
     /**
@@ -37,9 +38,10 @@ class GetUsersTest extends MyTestCase
         $user = $this->actAsUserWithPermission('view-user-own');
         $response = $this->rget();
         $response->assertOk();
-        $body = $this->getResponseBody($response);
-        expect(is_array($body))->toBeFalse();
-        expect($body->id)->toEqual($user->id);
+
+        $data = $this->getResponseBodyAsArray($response)['data'];
+        $this->assertIsArray($data);
+        $this->assertEquals($user->id, $data['id']);
     }
 
     /**

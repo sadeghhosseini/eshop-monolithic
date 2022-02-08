@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
@@ -19,12 +20,13 @@ class UserController extends Controller
     public function getAll(Request $request)
     {
         if ($request->user()->hasPermissionTo('view-user-any')) {
-            return response()->json(User::all());
+            return UserResource::collection(User::all());
         }
 
         if ($request->user()->hasPermissionTo('view-user-own')) {
             $currentUser = User::find($request->user()->id);
-            return response()->json($currentUser);
+            // return response()->json($currentUser);
+            return new UserResource($currentUser);
         }
     }
 
@@ -47,7 +49,8 @@ class UserController extends Controller
         }
 
 
-        return response()->json($user);
+        // return response()->json($user);
+        return new UserResource($user);
     }
 
     #[Patch('/users/{user}', middleware: ['permission:edit-user(name)-own'])]
@@ -62,7 +65,8 @@ class UserController extends Controller
 
         $user->name = $request->name ?? $user->name;
         $user->save();
-        return response()->json($user);
+        // return response()->json($user);
+        return new UserResource($user);
 
     }
 }

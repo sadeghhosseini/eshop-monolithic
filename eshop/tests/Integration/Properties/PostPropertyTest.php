@@ -21,14 +21,12 @@ class PostPropertyTest extends MyTestCase
         $this->actAsUserWithPermission('add-property');
         $property = Property::factory(['is_visible' => true])->make();
         $response = $this->rpost($property->toArray());
-        $response->assertOk();
-        expect(
-            collect($response->json())->except(
-                'id',
-                'created_at',
-                'updated_at'
-            )->toArray()
-        )->toMatchArray($property->toArray());
+        $response->assertCreated();
+        $data = $this->getResponseBodyAsArray($response)['data'];
+        $this->assertMatchSubsetOfArray(
+            $data,
+            $property->toArray(),
+        );
     }
 
     public function dataset_testChecksValidationRules()

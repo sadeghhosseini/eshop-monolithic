@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreatePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
+use App\Http\Resources\PropertyResource;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Spatie\RouteAttributes\Attributes\Delete;
@@ -17,13 +18,15 @@ class PropertyController extends Controller
 {
     #[Get('/properties/{property}')]
     public function get(Property $property) {
-        return response()->json($property);
+        // return response()->json($property);
+        return new PropertyResource($property);
     }
     
     #[Get('/properties')]
     public function getAll() {
         $properties = Property::all();
-        return response()->json($properties);
+        // return response()->json($properties);
+        return PropertyResource::collection($properties);
     }
     
     #[Post('/properties', middleware: ['auth:sanctum', 'permission:add-property'])]
@@ -33,7 +36,8 @@ class PropertyController extends Controller
         $property->is_visible = $request->is_visible;
         $property->category_id = $request->category_id;
         $property->save();
-        return response()->json($property);
+        // return response()->json($property);
+        return new PropertyResource($property);
     }
     
     #[Patch('/properties/{property}', middleware: ['auth:sanctum', 'permission:edit-property-any'])]
@@ -41,12 +45,14 @@ class PropertyController extends Controller
         $property->title = $request->title ?? $property->title;
         $property->is_visible = $request->is_visible ?? $property->is_visible;
         $property->save();
-        return response()->json($property);
+        // return response()->json($property);
+        return new PropertyResource($property);
     }
     
     #[Delete('/properties/{property}', middleware: ['auth:sanctum', 'permission:delete-property-any'])]
     public function delete(Property $property) {
         $property->delete();
-        return response()->json($property);
+        // return response()->json($property);
+        return new PropertyResource($property);
     }
 }

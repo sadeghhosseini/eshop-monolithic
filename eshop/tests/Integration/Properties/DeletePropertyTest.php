@@ -24,7 +24,7 @@ class DeletePropertyTest extends MyTestCase
         $property = Property::factory()->create();
         $response = $this->rdelete(['id', $property->id]);
         $response->assertOk();
-        expect(Property::where('id', $property->id)->exists())->toBeFalse();
+        $this->assertFalse(Property::where('id', $property->id)->exists());
     }
 
     /**
@@ -45,11 +45,11 @@ class DeletePropertyTest extends MyTestCase
         $response->assertOk();
 
         $products->each(function (Product $product) use ($property) {
-            expect(
+            $this->assertFalse(
                 $product->properties()
                     ->wherePivot('property_id', $property->id)
                     ->exists()
-            )->toBeFalse();
+            );
         });
     }
 

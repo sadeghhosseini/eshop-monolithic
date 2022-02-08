@@ -60,8 +60,10 @@ class GetCategoriesTest extends MyTestCase
         
         $responseItemsAsArray = $response->json();
         $expectedItemsAsArray = $categories->toArray();
-        expect($responseItemsAsArray['data'])
-        ->toEqualCanonicalizing($expectedItemsAsArray);
+        $this->assertMatchSubsetOfArray(
+            $expectedItemsAsArray,
+            $responseItemsAsArray['data'],
+        );
     
     }
 

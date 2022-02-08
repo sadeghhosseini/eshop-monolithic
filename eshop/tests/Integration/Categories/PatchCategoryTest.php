@@ -3,6 +3,7 @@
 
 namespace Tests\Integration\Categories;
 
+use App\Helpers;
 use App\Models\Category;
 use Tests\MyTestCase;
 
@@ -60,9 +61,11 @@ class PatchCategoryTest extends MyTestCase
         $response = $this->patch($this->url(['id' => $category->id]), ['title' => $newTitle]);
         $category->title = $newTitle;
         $response->assertOk();
-        expect($response->json()['data'])
-            ->toMatchArray($category->toArray());
-    
+        $this->assertMatchSubsetOfArray(
+            $category->toArray(),
+            $response->json()['data'],
+        );
+        
     }
 
     

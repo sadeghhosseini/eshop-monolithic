@@ -33,8 +33,6 @@ class CategoryController extends Controller
     public function getAll()
     {
         $categories = Category::all();
-        // $categories = Category::with('products')->get();
-        // return response()->json($categories);
         return CategoryResource::collection($categories);
     }
 
@@ -42,15 +40,13 @@ class CategoryController extends Controller
     public function get(Category $category)
     {
         return new CategoryResource($category);
-        // return response()->json($category);
     }
 
     #[Delete('/categories/{category}', middleware: ['auth:sanctum', 'can:delete-category-any'])]
     public function delete(Category $category)
     {
         $category->delete();
-        // return response()->json([]);
-        return new CategoryResource([]);
+        return new CategoryResource($category);
     }
 
     #[Patch('/categories/{category}', middleware: ['auth:sanctum', 'can:edit-category-any'])]
@@ -59,7 +55,6 @@ class CategoryController extends Controller
         $category->title = $request->input('title', $category->title);
         $category->description = $request->input('description', $category->description);
         $category->save();
-        // return response()->json($category);
         return new CategoryResource($category);
     }
 }

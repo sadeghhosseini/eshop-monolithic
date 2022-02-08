@@ -31,7 +31,10 @@ class PatchPropertyTest extends MyTestCase
             $key => $value,
         ]);
         $response->assertOk();
-        expect(Property::find($property->id)->$key)->toEqual($value);
+        $this->assertEquals(
+            $value,
+            Property::find($property->id)->$key,
+        );
     }
 
     public function dataset_testChecksValidationRules() {

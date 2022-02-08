@@ -90,9 +90,9 @@ class GetProductTest extends MyTestCase
         $response = $this->get("/api/products/$product->id/category");
         $response->assertOk();
         // expect($response->json())->toMatchArray($product->category->toArray());
-        $this->assertMatchArray(
-            $product->category->toArray(),
+        $this->assertMatchSubsetOfArray(
             $this->getResponseBodyAsArray($response)['data'],
+            $product->category->toArray(),
         );
     }
 }

@@ -55,8 +55,8 @@ class GetUserTest extends MyTestCase
         $user = $this->actAsUserWithPermission('view-user-own');
         $response = $this->rget(['id', $user->id]);
         $response->assertOk();
-        expect($response->baseResponse->content())->json()
-            ->id->toEqual($user->id);
+        $data = $this->getResponseBodyAsArray($response)['data'];
+        $this->assertEquals($user->id, $data['id']);
     }
 
     /**
