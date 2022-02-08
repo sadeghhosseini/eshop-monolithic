@@ -25,7 +25,7 @@ class DeleteCartItemsTest extends MyTestCase
     */
     
     public function testItDeletesAnItemFromUserSCart() {
-        $user = $this->actAsUser();
+        $user = $this->actAsUserWithPermission('delete-cart.item-own');
         $cart = Cart::factory(['customer_id' => $user->id])->create();
         $product = Product::factory([])->create();
         $cart->items()->attach($product->id, ['quantity' => 3]);

@@ -24,7 +24,7 @@ class PostCartItemsTest extends MyTestCase
 
     public function testAddAnItemToCart()
     {
-        $user = $this->actAsUser();
+        $user = $this->actAsUserWithPermission('add-cart.item-own');
         $cart = Cart::factory(['customer_id' => $user->id])->create();
         $product = Product::factory()->create();
         $data = [
@@ -43,7 +43,7 @@ class PostCartItemsTest extends MyTestCase
 
     public function testAddAnItemToCart2()
     {
-        $user = $this->actAsUser();
+        $user = $this->actAsUserWithPermission('add-cart.item-own');
         $product = Product::factory()->create();
         $data = [
             'product_id' => $product->id,
@@ -60,7 +60,7 @@ class PostCartItemsTest extends MyTestCase
 
     public function testReturns400IfProductIsAddedToCartForThe2ndTime()
     {
-        $user = $this->actAsUser();
+        $user = $this->actAsUserWithPermission('add-cart.item-own');
         $cart = Cart::factory(['customer_id' => $user->id])->create();
         $product = Product::factory()->create();
         $cart->items()->attach([
@@ -83,7 +83,7 @@ class PostCartItemsTest extends MyTestCase
     */
     
     public function testAddItemsToCart() {
-        $user = $this->actAsUser();
+        $user = $this->actAsUserWithPermission('add-cart.item-own');
         $cart = Cart::factory(['customer_id' => $user->id])->create();
         $products = Product::factory()->count(10)->create();
         $data = $products->map(function($product) {

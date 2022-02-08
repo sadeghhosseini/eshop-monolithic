@@ -45,7 +45,7 @@ class PatchCartItemsTest extends MyTestCase
 
     public function testAddItemToCartMassUpdate()
     {
-        $user = $this->actAsUser();
+        $user = $this->actAsUserWithPermission('update-cart.item-own');
         $cart = Cart::factory(['customer_id' => $user->id])->create();
         $products = Product::factory()->count(10)->create();
         $data = $products->mapWithKeys(function ($product) {
@@ -77,7 +77,7 @@ class PatchCartItemsTest extends MyTestCase
      */
     public function testReturns400IfProductIsNotAlreadyInTheCart()
     {
-        $user = $this->actAsUser();
+        $user = $this->actAsUserWithPermission('update-cart.item-own');
         $cart = Cart::factory(['customer_id' => $user->id])->create();
         $product = Product::factory()->create();
         $cart->items()->attach($product->id, ['quantity' => 3]);
@@ -98,7 +98,7 @@ class PatchCartItemsTest extends MyTestCase
 
     public function testReturns400IfProductIsNotAlreadyInTheCartMassUpdate()
     {
-        $user = $this->actAsUser();
+        $user = $this->actAsUserWithPermission('update-cart.item-own');
         $cart = Cart::factory(['customer_id' => $user->id])->create();
         $product = Product::factory()->create();
         $cart->items()->attach($product->id, ['quantity' => 3]);

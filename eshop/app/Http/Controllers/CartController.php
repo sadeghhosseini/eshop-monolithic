@@ -13,17 +13,19 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Spatie\RouteAttributes\Attributes\Delete;
 use Spatie\RouteAttributes\Attributes\Get;
+use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Patch;
 use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
 
 #[Prefix('/api')]
+#[Middleware('auth:sanctum')]
 class CartController extends Controller
 {
     /**
      * TODO test
      */
-    #[Post('/carts/items')]
+    #[Post('/carts/items', middleware: ['permission:add-cart.item-own'])]
     public function addItem(AddCartItemRequest $request)
     {
         $isArrayOfItems = count($request->all()) !== count($request->all(), COUNT_RECURSIVE);
@@ -43,7 +45,7 @@ class CartController extends Controller
     /**
      * TODO test
      */
-    #[Delete('/carts/items/{product}')]
+    #[Delete('/carts/items/{product}', middleware: ['permission:delete-cart.item-own'])]
     public function deleteItem(Request $request, Product $product)
     {
         $item = $request->user()
@@ -60,7 +62,6 @@ class CartController extends Controller
     #[Get('/carts/items')]
     public function getItems(Request $request)
     {
-        // return response()->json($request->user()->cart->items);
         return new CartResource(
             $request->user()
                 ->cart
@@ -79,7 +80,7 @@ class CartController extends Controller
         );
     }
 
-    #[Patch('/carts/items')]
+    #[Patch('/carts/items', middleware: ['permission:update-cart.item-own'])]
     public function updateItems(UpdateCartItemsRequest $request)
     {
         $cart = Cart::firstOrCreate(['customer_id' => $request->user()->id]);

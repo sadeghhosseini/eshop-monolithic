@@ -23,7 +23,6 @@ class GetCartItemsTest extends MyTestCase
     /**
      * @testdox returns all the cart items for the authenticated user
      */
-
     public function testReturnsAllTheCartItemsForTheAuthenticatedUser()
     {
         $user = $this->actAsUser();
