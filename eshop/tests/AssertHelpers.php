@@ -7,6 +7,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Testing\Assert;
 use Illuminate\Testing\TestResponse;
+use stdClass;
 
 trait AssertHelpers
 {
@@ -75,28 +76,40 @@ trait AssertHelpers
 
         return $this;
     }
-    public function assertMatchSubsetOfArray(array $subset, array $superset)
+    /**
+     * @param boolean $strict if true, $expected and $actual must have the exact same $key and $values
+     *      if false, only those items on $expected which have a corresponding key in $actual will be checked for euqality
+     * @param array $expected
+     * @param array $actual
+     */
+    public function assertMatchSubsetOfArray(array $expected, array $actual, bool $strict = false)
     {
-        foreach ($subset as $key => $value) {
-            if (array_key_exists($key, $superset)) {
-                Assert::assertArrayHasKey($key, $superset);
-                // Helpers::die([$value, $superset[$key]], false);
-                if (
-                    is_array($value) && Helpers::isAssociativeArray($value) &&
-                    is_array($superset[$key]) && Helpers::isAssociativeArray($superset[$key])
-                ) {
-                    $this->assertMatchSubsetOfArray($value, $superset[$key]);
-                } else {
-                    Assert::assertEquals(
-                        $value,
-                        $superset[$key],
-                        sprintf(
-                            'Failed asserting that an array has a key %s with the value %g.',
-                            $key,
-                            $superset[$key],
-                        ),
-                    );
+        if ($expected instanceof stdClass || $actual instanceof stdClass) {
+            throw new Exception('inputs of assertMatchSubsetOfArray must be arrays, instances of stdClass given');
+        }
+        foreach ($expected as $key => $value) {
+            if (!$strict && !array_key_exists($key, $actual)) {
+                continue;
+            }
+            Assert::assertArrayHasKey($key, $actual);
+            if (
+                is_array($value) && Helpers::isAssociativeArray($value) &&
+                is_array($actual[$key]) && Helpers::isAssociativeArray($actual[$key])
+            ) {
+                $this->assertMatchSubsetOfArray($value, $actual[$key]);
+            } else {
+                if ($value instanceof stdClass || $actual[$key] instanceof stdClass) {
+                    throw new Exception('inputs of assertMatchSubsetOfArray must be arrays, instances of stdClass given');
                 }
+                Assert::assertEquals(
+                    $value,
+                    $actual[$key],
+                    sprintf(
+                        'Failed asserting that an array has a key %s with the value %g.',
+                        $key,
+                        $actual[$key],
+                    ),
+                );
             }
         }
 
