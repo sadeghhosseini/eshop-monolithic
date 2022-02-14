@@ -74,22 +74,22 @@ trait AddsHelpers
         return json_decode($response->baseResponse->content(), true);
     }
 
-    public function rpost($data = [])
+    public function rpost($data = []): TestResponse
     {
         return $this->post($this->getUrl(), $data);
     }
 
-    public function rpatch(array $params = [], $data = [])
+    public function rpatch(array $params = [], $data = []): TestResponse
     {
         return $this->patch($this->makeUrl($this->getUrl(), $params), $data);
     }
 
-    public function rget(array $params = [])
+    public function rget(array $params = [], $qs = ''): TestResponse
     {
-        return $this->get($this->makeUrl($this->getUrl(), $params));
+        return $this->get($this->makeUrl($this->getUrl(), $params) . $qs);
     }
 
-    public function rdelete(array $params = [])
+    public function rdelete(array $params = []): TestResponse
     {
         return $this->delete($this->makeUrl($this->getUrl(), $params));
     }
