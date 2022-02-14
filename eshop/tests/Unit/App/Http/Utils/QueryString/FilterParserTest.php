@@ -46,7 +46,7 @@ class FilterParserTest extends TestCase
     public function testDeserialization($input, $expected)
     {
         $deserializer = new FilterParser();
-        $result = $deserializer->deserialize($input);
+        $result = $deserializer->parse($input);
         
         for ($i = 0; $i < count($expected); ++$i) {
             $this->assertCount(3, $result[$i]);

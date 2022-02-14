@@ -6,7 +6,7 @@ use App\Helpers;
 
 class FilterParser
 {
-    public static function deserialize(string $filter)
+    public static function parse(string $filter)
     {
         $operatorMap = [
             '$gte' => '>=',

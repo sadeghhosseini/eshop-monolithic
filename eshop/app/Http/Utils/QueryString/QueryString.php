@@ -51,7 +51,7 @@ class QueryString
         }
 
 
-        $filters = FilterParser::deserialize(request()->query('filter'));
+        $filters = FilterParser::parse(request()->query('filter'));
         foreach ($filters as $dfilter) {
             if (empty($onlyFilterBasedOn) || in_array($dfilter[0], $onlyFilterBasedOn)) {
                 $this->queryBuilder->where(...$dfilter);
