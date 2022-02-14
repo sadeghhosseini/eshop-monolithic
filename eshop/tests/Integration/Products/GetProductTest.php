@@ -73,10 +73,10 @@ class GetProductTest extends MyTestCase
         $product = Product::factory()->has(Image::factory()->count(5))->create();
         $response = $this->get("/api/products/$product->id/images");
         $response->assertOk();
-        // expect($response->json())->toMatchArray($product->images->toArray());
-        $this->assertMatchArray(
+        $data = $this->getResponseBodyAsArray($response)['data'];
+        $this->assertEqualArray(
             $product->images->toArray(),
-            $this->getResponseBodyAsArray($response)['data'],
+            $data
         );
     }
 

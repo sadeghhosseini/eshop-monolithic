@@ -1,8 +1,9 @@
 <?php
 
 
-namespace Tests\Orders;
+namespace Tests\Integration\Orders;
 
+use App\Helpers;
 use App\Models\Order;
 use App\Models\Product;
 use Tests\MyTestCase;
@@ -88,4 +89,31 @@ class GetOrdersTest extends MyTestCase
         $body = $this->getResponseBody($response);
         expect(collect($body->data)->count())->toEqual(2);
     }
+
+    
+    /**
+    * @testdox returns all orders filtered by status
+    */
+    public function testReturnsAllOrdersFilteredByStatus() {
+        $user = $this->actAsUserWithPermission('view-order-any');
+        $orders[] = Order::factory(['status' => 'processing'])->create();
+        $orders[] = Order::factory(['status' => 'processing'])->create();
+        $orders[] = Order::factory(['status' => 'processing'])->create();
+        $orders[] = Order::factory(['status' => 'shipped'])->create(); 
+        $orders[] = Order::factory(['status' => 'shipped'])->create(); 
+        $orders[] = Order::factory(['status' => 'processing'])->create(); 
+        $orders[] = Order::factory(['status' => 'processed'])->create(); 
+
+        $response = $this->rget(qs: '?filter={"status": "processing"}');
+        $response->assertOk();
+        $data = $this->getResponseBodyAsArray($response)['data'];
+        $processingOrders = array_filter($orders, fn($order) => $order->status == 'processing');
+        $this->assertCount(count($processingOrders), $data);
+        $this->assertEqualArray(
+            $processingOrders,
+            $data,
+            ['id', 'status'],
+            exactEquality: true,
+        );
+    } 
 }

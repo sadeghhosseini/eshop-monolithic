@@ -6,6 +6,7 @@ use App\Helpers;
 use App\Http\Requests\CreateAddressRequest;
 use App\Http\Requests\UpdateAddressRequest;
 use App\Http\Resources\AddressResource;
+use App\Http\Utils\QueryString\QueryString;
 use App\Models\Address;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -35,18 +36,23 @@ class AddressController extends Controller
         return new AddressResource($address);
     }
     
-    /**
-     * TODO for a customer returns all his/her address
-     * for admin returns all customers' address 
-     */
     #[Get('/addresses', middleware: ['permission:view-address-own|view-address-any'])]
     public function getAll(Request $request) {
         if ($request->user()->hasPermissionTo('view-address-any')) {
-            return AddressResource::collection(User::all());
+            $addresses = QueryString::createFromModelClass(Address::class)
+                ->filter(['city', 'province', 'customer_id'])
+                ->paginate()
+                ->getCollection();
+            return AddressResource::collection($addresses);
         }
         
         if ($request->user()->hasPermissionTo('view-address-own')) {
-            return AddressResource::collection(User::find(Auth::id()));
+            $addressQb = QueryString::createFromModelClass(Address::class)
+                ->filter(['city'])
+                ->paginate()
+                ->getQueryBuilder();
+            $addresses = $addressQb->where('customer_id', Auth::id())->get();
+            return AddressResource::collection($addresses);
         }
 
     }

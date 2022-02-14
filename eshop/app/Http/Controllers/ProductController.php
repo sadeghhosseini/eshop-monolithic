@@ -8,6 +8,7 @@ use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ImageResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\PropertyResource;
+use App\Http\Utils\QueryString\QueryString;
 use App\Models\Image;
 use App\Models\Product;
 use App\Models\Property;
@@ -25,14 +26,16 @@ class ProductController extends Controller
     #[Get('/products')]
     public function getAll()
     {
-        $products = Product::all();
-        // return response()->json($products);
+        $products = QueryString::createFromModelClass(Product::class)
+            ->paginate()
+            ->filter(['title', 'quantity', 'price'])
+            ->getCollection();
         return ProductResource::collection($products);
     }
+
     #[Get('/products/{product}')]
     public function get(Product $product)
     {
-        // return response()->json($product);
         return new ProductResource($product);
     }
 
@@ -142,21 +145,24 @@ class ProductController extends Controller
     #[Get('/products/{product}/images')]
     public function getImages(Product $product)
     {
-        // return response()->json($product->images);
-        return ImageResource::collection($product->images);
+        $images = QueryString::createFromRelation($product->images())
+            ->paginate()
+            ->getCollection();
+        return ImageResource::collection($images);
     }
 
     #[Get('/products/{product}/category')]
-    public function getCategories(Product $product)
+    public function getCategory(Product $product)
     {
-        // return response()->json($product->category);
         return new CategoryResource($product->category);
     }
 
     #[Get('/products/{product}/properties')]
     public function getProperties(Product $product)
     {
-        // return response()->json($product->properties);
-        return PropertyResource::collection($product->properties);
+        $properties = QueryString::createFromRelation($product->properties())
+            ->paginate()
+            ->getCollection();
+        return PropertyResource::collection($properties);
     }
 }

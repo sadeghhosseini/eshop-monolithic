@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
+use App\Http\Resources\ProductResource;
+use App\Http\Utils\QueryString\QueryString;
 use App\Models\Address;
 use App\Models\Enums\OrderStatusEnum;
 use App\Models\Order;
@@ -76,13 +78,20 @@ class OrderController extends Controller
         }
 
         if ($has_viewOrderAny_permission) {
-            $orders = Order::with('items')->get()->all();
+            $orderQb = QueryString::createFromModelClass(Order::class)
+                ->filter(['customer_id', 'status'])
+                ->getQueryBuilder();
+            $orders = $orderQb->with('items')->get()->all();
+            
             return OrderResource::collection($orders);
         }
 
         if ($has_viewOrderOwn_permission) {
             $customer = $request->user();
-            return OrderResource::collection($customer->orders);
+            $orders = QueryString::create($customer->orders())
+                ->filter(['status'])
+                ->getCollection();
+            return OrderResource::collection($orders);
         }
     }
 
@@ -155,5 +164,16 @@ class OrderController extends Controller
         }
         // return RestResponseBuilder::create()->setData($order->with('address')->first())->respond();
         return new OrderResource($order->with('address')->first());
+    }
+
+    /**
+     * TODO test
+     */
+    #[Get('/orders/{order}/items')]
+    public function getItems(Order $order) {
+        $items = QueryString::create($order->items())
+            ->paginate()
+            ->getCollection();
+        return ProductResource::collection($items);
     }
 }

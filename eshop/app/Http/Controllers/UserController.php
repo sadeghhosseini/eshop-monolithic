@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Utils\QueryString\QueryString;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
@@ -20,12 +21,15 @@ class UserController extends Controller
     public function getAll(Request $request)
     {
         if ($request->user()->hasPermissionTo('view-user-any')) {
-            return UserResource::collection(User::all());
+            $users = QueryString::createFromModelClass(User::class)
+                ->paginate()
+                ->filter(['name', 'email'])
+                ->getCollection();
+            return UserResource::collection($users);
         }
 
         if ($request->user()->hasPermissionTo('view-user-own')) {
             $currentUser = User::find($request->user()->id);
-            // return response()->json($currentUser);
             return new UserResource($currentUser);
         }
     }

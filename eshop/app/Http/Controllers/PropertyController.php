@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreatePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
 use App\Http\Resources\PropertyResource;
+use App\Http\Utils\QueryString\QueryString;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Spatie\RouteAttributes\Attributes\Delete;
@@ -24,8 +25,10 @@ class PropertyController extends Controller
     
     #[Get('/properties')]
     public function getAll() {
-        $properties = Property::all();
-        // return response()->json($properties);
+        $properties = QueryString::createFromModelClass(Property::class)
+            ->paginate()
+            ->filter(['is_visible'])
+            ->getCollection();
         return PropertyResource::collection($properties);
     }
     

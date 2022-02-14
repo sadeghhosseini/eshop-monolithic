@@ -2,8 +2,9 @@
 
 
 
-namespace Tests\Orders;
+namespace Tests\Integration\Orders;
 
+use App\Helpers;
 use App\Models\Address;
 use App\Models\Enums\OrderStatusEnum;
 use App\Models\Order;
@@ -148,20 +149,26 @@ class PatchOrderTest extends MyTestCase
         $response->assertOk();
         $body = $this->getResponseBody($response);
 
-        expect(
-            collect($body->data->address)->only(
-                'province',
-                'city',
-                'rest_of_address',
-                'postal_code',
-            )->toArray()
-        )->toMatchArray(
-            $newAddress->only(
-                'province',
-                'city',
-                'rest_of_address',
-                'postal_code',
-            )
+
+        
+
+        $expected = $newAddress->only(
+            'province',
+            'city',
+            'rest_of_address',
+            'postal_code',
         );
+
+        $actual = collect($body->data->address)->only(
+            'province',
+            'city',
+            'rest_of_address',
+            'postal_code',
+        )->toArray();
+
+        $this->assertCount(count($expected), $actual);
+        foreach ($expected as $expectedKey => $expectedValue) {
+            $this->assertEquals($expectedValue, $actual[$expectedKey]);
+        }
     }
 }

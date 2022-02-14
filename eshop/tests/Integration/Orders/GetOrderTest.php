@@ -1,8 +1,7 @@
 <?php
 
 
-namespace Tests\Orders;
-
+namespace Tests\Integration\Orders;
 use App\Models\Order;
 use App\Models\Product;
 use Tests\MyTestCase;

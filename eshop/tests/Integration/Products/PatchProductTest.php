@@ -328,20 +328,16 @@ class PatchProductTest extends MyTestCase
         );
 
         $this->assertEqualArray(
-            $product->properties
-                ->map(fn ($item) => collect($item)->only('category_id', 'title'))
-                ->toArray(),
             [
                 ...(collect($existingPropertyIds ?? [])->map(fn ($id) => Property::select('title', 'category_id')->find($id))->toArray()),
                 ...$properties
                     ->map(fn ($item) => collect($item)->only('category_id', 'title'))
                     ->toArray(),
             ],
-            'title',
-            function ($a, $b) {
-                // expect($a['title'])->toEqual($b['title']);
-                $this->assertEquals($b['title'], $a['title']);
-            }
+            $product->properties
+                ->map(fn ($item) => collect($item)->only('category_id', 'title'))
+                ->toArray(),
+            uniqueKey: 'title',
         );
         
     }

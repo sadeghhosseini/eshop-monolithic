@@ -1,8 +1,7 @@
 <?php
 
 
-namespace Tests\Orders;
-
+namespace Tests\Integration\Orders;
 use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Order;

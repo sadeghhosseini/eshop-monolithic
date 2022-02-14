@@ -6,6 +6,7 @@ use App\Helpers;
 use App\Http\Requests\CreateCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
+use App\Http\Utils\QueryString\QueryString;
 use App\Models\Comment;
 use App\Models\Product;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -38,9 +39,11 @@ class CommentController extends Controller
     #[Get('/products/{product}/comments')]
     public function getAll($productId)
     {
-        $comments = Comment::where('product_id', $productId)->where('parent_id', null)
-            ->withCount('replies')
-            ->get();
+        $commentsQueryBuilder = Comment::where('product_id', $productId)->where('parent_id', null)
+            ->withCount('replies');
+        $comments = QueryString::create($commentsQueryBuilder)
+            ->paginate()
+            ->getCollection();
 
         // return response()->json($comments);
         return CommentResource::collection($comments);

@@ -22,9 +22,7 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware('auth:sanctum')]
 class CartController extends Controller
 {
-    /**
-     * TODO test
-     */
+    
     #[Post('/carts/items', middleware: ['permission:add-cart.item-own'])]
     public function addItem(AddCartItemRequest $request)
     {
@@ -42,9 +40,7 @@ class CartController extends Controller
         return new CartResource($cart->with('items')->first());
     }
 
-    /**
-     * TODO test
-     */
+    
     #[Delete('/carts/items/{product}', middleware: ['permission:delete-cart.item-own'])]
     public function deleteItem(Request $request, Product $product)
     {
