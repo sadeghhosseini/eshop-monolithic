@@ -2,6 +2,7 @@
 
 namespace App\Http\Utils\QueryString;
 
+use App\Helpers;
 use App\Http\Utils\QueryString\FilterParser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -30,7 +31,8 @@ class QueryString
         }
     }
 
-    public static function createFromRelation(Relation $relation) {
+    public static function createFromRelation(Relation $relation)
+    {
         return new Self($relation->getQuery());
     }
 
@@ -49,8 +51,6 @@ class QueryString
         if (!request()->has('filter')) {
             return $this;
         }
-
-
         $filters = FilterParser::parse(request()->query('filter'));
         foreach ($filters as $dfilter) {
             if (empty($onlyFilterBasedOn) || in_array($dfilter[0], $onlyFilterBasedOn)) {
@@ -67,6 +67,21 @@ class QueryString
         }
         $this->queryBuilder->offset(request()->query('offset'))
             ->limit(request()->query('limit'));
+        return $this;
+    }
+
+    public function sort()
+    {
+        $sorts = SortParser::parse(request()->query('sort'));
+        if (!request()->has('sort')) {
+            return $this;
+        }
+        foreach ($sorts as $sort) {
+            $field = $sort[0];
+            $direction = $sort[1];
+            $this->queryBuilder->orderBy($field, $direction);
+        }
+
         return $this;
     }
 
